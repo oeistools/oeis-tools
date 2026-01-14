@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oeis-tools"
+version = "0.1.0"
+description = "Tools and utilities for working with OEIS integer sequences"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+  { name = "Enrique Pérez Herrero", email = "energycode.org@gmail.com" }
+]
+
+keywords = [
+  "oeis",
+  "integer-sequences",
+  "number-theory",
+  "math"
+]
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12"
+]
+
+dependencies = [
+  "requests>=2.31"
+]
+
+[project.urls]
+Homepage = "https://github.com/oeistools/oeis-tools"
+Repository = "https://github.com/oeistools/oeis-tools"
+Issues = "https://github.com/oeistools/oeis-tools/issues"
+Documentation = "https://github.com/oeistools/oeis-tools#readme"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+pyproject
+[tool.setuptools.packages.find]
+where = ["src"]
