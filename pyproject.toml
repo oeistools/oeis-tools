@@ -44,6 +44,6 @@ Documentation = "https://github.com/oeistools/oeis-tools#readme"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-pyproject
+
 [tool.setuptools.packages.find]
 where = ["src"]
