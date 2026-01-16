@@ -46,15 +46,14 @@ print(oeis_tools.oeis_url("A000001", fmt="json"))  # https://oeis.org/search?q=i
 
 ## Classes
 
-- `OEISSequence(oeis_id)`: A class that fetches and stores the JSON data for the given OEIS ID in the `data_json` attribute (as a dict). Also provides `oeis_m_id` and `oeis_n_id` parsed from the 'id' field (or None if not present).
+- `OEISSequence(oeis_id)`: A class that fetches and stores the JSON data for the given OEIS ID in the `data_json` attribute (as a dict). Also provides parsed attributes: `oeis_m_id`, `oeis_n_id` (or None), `oeis_time`, `oeis_created` (as datetime objects), `oeis_link` (formatted links as Markdown), and `bfile` (text content of the b-file if available).
 
 Example:
 
 ```python
 seq = oeis_tools.OEISSequence("A000045")
 print(seq.data_json['name'])  # Fibonacci numbers...
-print(seq.oeis_m_id)  # M0692
-print(seq.oeis_n_id)  # N0256
+print(seq.bfile.split('\n')[0])  # First line of b-file
 ```
 
 ## License
