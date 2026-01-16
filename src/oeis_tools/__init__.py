@@ -1,6 +1,7 @@
 """Tools and utilities for working with OEIS integer sequences."""
 
 import re
+import requests
 
 from .__version__ import __version__
 
@@ -67,4 +68,41 @@ def oeis_url(oeis_id, fmt=None):
     else:
         return f"{OEIS_URL}/{oeis_id}"
 
-__all__ = ["__version__", "check_id", "oeis_bfile", "oeis_url"]
+class OEISSequence:
+    """
+    A class to represent an OEIS sequence, fetching data from the JSON API.
+    
+    Attributes:
+        oeis_id (str): The OEIS ID.
+        data_json (dict): The JSON data fetched from OEIS for the sequence.
+        oeis_m_id (str or None): The M ID from the 'id' field (e.g., 'M0692'), or None.
+        oeis_n_id (str or None): The N ID from the 'id' field (e.g., 'N0256'), or None.
+    """
+
+    def __init__(self, oeis_id):
+        """
+        Initialize the OEISSequence with the given OEIS ID.
+        
+        Args:
+            oeis_id (str): The OEIS ID, e.g., 'A000001'.
+        
+        Raises:
+            ValueError: If the oeis_id is invalid.
+            requests.HTTPError: If the request fails.
+        """
+        if not check_id(oeis_id):
+            raise ValueError(f"Invalid OEIS ID: {oeis_id}")
+
+        json_url = oeis_url(oeis_id, fmt="json")
+        response = requests.get(json_url, timeout=10)
+        response.raise_for_status()
+        self.data_json = response.json()[0]
+        self.oeis_id = oeis_id
+
+        # Parse M and N IDs from the 'id' field
+        id_str = self.data_json.get('id', '')
+        parts = id_str.split() if id_str else []
+        self.oeis_m_id = parts[0] if parts else None
+        self.oeis_n_id = parts[1] if len(parts) > 1 else None
+
+__all__ = ["__version__", "check_id", "oeis_bfile", "oeis_url", "OEISSequence"]
