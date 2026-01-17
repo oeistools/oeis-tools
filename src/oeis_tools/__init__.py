@@ -1,209 +1,25 @@
-"""Tools and utilities for working with OEIS integer sequences."""
+"""
+oeis_tools: A Python package for reading and manipulating data from OEIS.org.
 
-import re
-from datetime import datetime
-import requests
+This package provides an object-oriented interface to fetch, parse, and work with
+integer sequences from the Online Encyclopedia of Integer Sequences (OEIS).
+It follows PEP 8 style guidelines and emphasizes OOP principles for extensibility.
 
+Key components:
+- Sequence: Core class for representing and interacting with OEIS sequences.
+
+Example usage:
+    from oeis_tools import Sequence
+
+    seq = Sequence.from_id('A000045')  # Fetch Fibonacci sequence
+    print(seq.terms[:10])  # Output first 10 terms
+
+For more details, refer to the documentation in individual modules.
+"""
+
+# Explicitly import and expose public API to avoid namespace pollution
+from .sequence import OEISSequence
 from .__version__ import __version__
 
-OEIS_URL = "https://oeis.org"
-
-def check_id(oeis_id):
-    """
-    Check if the OEIS ID is valid.
-    It must start with 'A' followed by exactly 6 digits.
-    
-    Args:
-        oeis_id (str): The ID to check.
-    
-    Returns:
-        bool: True if valid, False otherwise.
-    """
-    pattern = r'^A\d{6}$'
-    return bool(re.match(pattern, oeis_id))
-
-def oeis_bfile(oeis_id):
-    """
-    Generate the b-file filename for a given OEIS ID.
-    
-    The b-file is a text file containing the sequence data.
-    The filename format is 'b' followed by the 6-digit number and '.txt'.
-    
-    Args:
-        oeis_id (str): A valid OEIS ID, e.g., 'A000001'.
-    
-    Returns:
-        str: The b-file filename, e.g., 'b000001.txt'.
-    
-    Raises:
-        ValueError: If the oeis_id is not in the correct format.
-    """
-    if not check_id(oeis_id):
-        raise ValueError(f"Invalid OEIS ID: {oeis_id}")
-
-    # Extract the 6 digits after 'A'
-    digits = oeis_id[1:]
-    return f"b{digits}.txt"
-
-def oeis_url(oeis_id, fmt=None):
-    """
-    Generate the OEIS webpage URL for a given OEIS ID.
-    
-    Args:
-        oeis_id (str): The OEIS ID, e.g., 'A000001'.
-        fmt (str, optional): The format of the response. 
-            - 'json': JSON search URL.
-            - 'text': Text search URL.
-            - 'bfile': b-file URL.
-            - None: Standard webpage URL.
-    
-    Returns:
-        str: The URL.
-    """
-    if fmt == "json":
-        return f"{OEIS_URL}/search?q=id:{oeis_id}&fmt=json"
-    elif fmt == "text":
-        return f"{OEIS_URL}/search?q=id:{oeis_id}&fmt=text"
-    elif fmt == "bfile":
-        return f"{OEIS_URL}/{oeis_id}/{oeis_bfile(oeis_id)}"
-    else:
-        return f"{OEIS_URL}/{oeis_id}"
-
-class OEISSequence:
-    """
-    A class to represent an OEIS sequence, fetching data from the JSON API.
-    
-    Attributes:
-        id (str): The OEIS ID.
-        data_json (dict): The JSON data fetched from OEIS for the sequence.
-        m_id (str or None): The M ID from the 'id' field (e.g., 'M0692'), or None.
-        n_id (str or None): The N ID from the 'id' field (e.g., 'N0256'), or None.
-        time (datetime or None): The last modification time from the 'time' field.
-        created (datetime or None): The creation time from the 'created' field.
-        link (str): Formatted links from the 'link' field as printable text with hyperlinks.
-        bfile (str or None): The text content of the b-file if available, else None.
-        bfile_data (list of int or None): Parsed numeric data from bfile, as list of values.
-        data (str): The sequence data from the 'data' field.
-        name (str): The sequence name from the 'name' field.
-        comment (str): Comments from the 'comment' field.
-        reference (str): References from the 'reference' field.
-        formula (str): Formulas from the 'formula' field.
-        example (str): Examples from the 'example' field.
-        maple (str): Maple code from the 'maple' field.
-        mathematica (str): Mathematica code from the 'mathematica' field.
-        program (str): Programs from the 'program' field.
-        xref (str): Cross-references from the 'xref' field.
-        keyword (str): Keywords from the 'keyword' field.
-        offset (str): Offset information from the 'offset' field.
-        author (str): Author information from the 'author' field.
-        references (str): Additional references from the 'references' field.
-        revision (str): Revision information from the 'revision' field.
-    """
-
-    def __init__(self, oeis_id):
-        """
-        Initialize the OEISSequence with the given OEIS ID.
-        
-        Args:
-            oeis_id (str): The OEIS ID, e.g., 'A000001'.
-        
-        Raises:
-            ValueError: If the oeis_id is invalid.
-            requests.HTTPError: If the request fails.
-        """
-        if not check_id(oeis_id):
-            raise ValueError(f"Invalid OEIS ID: {oeis_id}")
-
-        json_url = oeis_url(oeis_id, fmt="json")
-        response = requests.get(json_url, timeout=10)
-        response.raise_for_status()
-        self.data_json = response.json()[0]
-        self.id = oeis_id
-
-        # Add direct attributes from data_json
-        self.data = self.data_json.get('data', '')
-        self.name = self.data_json.get('name', '')
-        comment_raw = self.data_json.get('comment', [])
-        self.comment = ('\n'.join(comment_raw) if isinstance(comment_raw, list)
-                       else comment_raw)
-        reference_raw = self.data_json.get('reference', [])
-        self.reference = ('\n'.join(reference_raw) if isinstance(reference_raw, list)
-                         else reference_raw)
-        formula_raw = self.data_json.get('formula', [])
-        self.formula = ('\n'.join(formula_raw) if isinstance(formula_raw, list)
-                       else formula_raw)
-        example_raw = self.data_json.get('example', [])
-        self.example = ('\n'.join(example_raw) if isinstance(example_raw, list)
-                       else example_raw)
-        maple_raw = self.data_json.get('maple', [])
-        self.maple = ('\n'.join(maple_raw) if isinstance(maple_raw, list)
-                     else maple_raw)
-        mathematica_raw = self.data_json.get('mathematica', [])
-        self.mathematica = ('\n'.join(mathematica_raw) if isinstance(mathematica_raw, list)
-                           else mathematica_raw)
-        program_raw = self.data_json.get('program', [])
-        self.program = ('\n'.join(program_raw) if isinstance(program_raw, list)
-                       else program_raw)
-        xref_raw = self.data_json.get('xref', [])
-        self.xref = ('\n'.join(xref_raw) if isinstance(xref_raw, list)
-                    else xref_raw)
-        self.keyword = self.data_json.get('keyword', '')
-        self.offset = self.data_json.get('offset', '')
-        self.author = self.data_json.get('author', '')
-        references_raw = self.data_json.get('references', [])
-        self.references = ('\n'.join(references_raw) if isinstance(references_raw, list)
-                          else references_raw)
-        self.revision = self.data_json.get('revision', '')
-
-        # Parse M and N IDs from the 'id' field
-        id_str = self.data_json.get('id', '')
-        parts = id_str.split() if id_str else []
-        self.m_id = parts[0] if parts else None
-        self.n_id = parts[1] if len(parts) > 1 else None
-
-        # Parse time and created as datetime objects
-        time_str = self.data_json.get('time')
-        self.time = datetime.fromisoformat(time_str) if time_str else None
-        created_str = self.data_json.get('created')
-        self.created = datetime.fromisoformat(created_str) if created_str else None
-
-        # Parse links as formatted text with hyperlinks
-        links = self.data_json.get('link', [])
-        formatted_links = []
-        for link in links:
-            # Parse HTML <a href="url">text</a> and convert to Markdown [text](url)
-            match = re.search(r'<a href="([^"]*)">(.*?)</a>', link)
-            if match:
-                url, text = match.groups()
-                if url.startswith('/'):
-                    url = OEIS_URL + url
-                formatted_links.append(f"[{text}]({url})")
-            else:
-                # If no <a>, just add the text, but replace relative URLs
-                formatted_link = re.sub(r'href="/', f'href="{OEIS_URL}/', link)
-                formatted_links.append(formatted_link)
-        self.link = '\n'.join(formatted_links) if formatted_links else ''
-
-        # Fetch b-file content if b-file link is present
-        bfile_url = oeis_url(self.id, fmt="bfile")
-        if bfile_url in self.link:
-            try:
-                bfile_response = requests.get(bfile_url, timeout=10)
-                bfile_response.raise_for_status()
-                self.bfile = bfile_response.text
-            except requests.RequestException:
-                self.bfile = None
-        else:
-            self.bfile = None
-
-        # Parse bfile to numeric data
-        if self.bfile:
-            try:
-                lines = self.bfile.strip().split('\n')
-                self.bfile_data = [int(line.split()[1]) for line in lines if line.strip()]
-            except (ValueError, IndexError):
-                self.bfile_data = None
-        else:
-            self.bfile_data = None
-
-__all__ = ["__version__", "check_id", "oeis_bfile", "oeis_url", "OEISSequence"]
+# Define __all__ for controlled wildcard imports
+__all__ = ['OEISSequence']
