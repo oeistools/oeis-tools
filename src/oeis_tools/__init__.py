@@ -17,9 +17,14 @@ Example usage:
 For more details, refer to the documentation in individual modules.
 """
 
-# Explicitly import and expose public API to avoid namespace pollution
-from .sequence import OEISSequence
 from .__version__ import __version__
+from .utils import check_id, oeis_bfile, oeis_url
+from .core import Sequence
 
-# Define __all__ for controlled wildcard imports
-__all__ = ['OEISSequence']
+__all__ = [
+    "__version__",
+    "check_id",
+    "oeis_bfile",
+    "oeis_url",
+    "Sequence",
+]
