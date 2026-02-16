@@ -14,7 +14,7 @@ class Sequence:
     
     Attributes:
         id (str): The OEIS ID.
-        data_json (dict): The JSON data fetched from OEIS for the sequence.
+        json (dict): The JSON data fetched from OEIS for the sequence.
         m_id (str or None): The M ID from the 'id' field (e.g., 'M0692'), or None.
         n_id (str or None): The N ID from the 'id' field (e.g., 'N0256'), or None.
         time (datetime or None): The last modification time from the 'time' field.
@@ -33,7 +33,7 @@ class Sequence:
         xref (str): Cross-references from the 'xref' field.
         keyword (str): Keywords from the 'keyword' field.
         offset (str): Offset information from the 'offset' field.
-        author (str): Author information from the 'author' field.
+        author (list[str]): Author names parsed from the 'author' field.
         references (str): Additional references from the 'references' field.
         revision (str): Revision information from the 'revision' field.
     """
@@ -55,58 +55,58 @@ class Sequence:
         json_url = oeis_url(oeis_id, fmt="json")
         response = requests.get(json_url, timeout=10)
         response.raise_for_status()
-        self.data_json = response.json()[0]
+        self.json = response.json()[0]
         self.id = oeis_id
 
-        # Add direct attributes from data_json
-        self.data = self.data_json.get('data', '')
-        self.name = self.data_json.get('name', '')
-        comment_raw = self.data_json.get('comment', [])
+        # Add direct attributes from json
+        self.data = self.json.get('data', '')
+        self.name = self.json.get('name', '')
+        comment_raw = self.json.get('comment', [])
         self.comment = ('\n'.join(comment_raw) if isinstance(comment_raw, list)
                        else comment_raw)
-        reference_raw = self.data_json.get('reference', [])
+        reference_raw = self.json.get('reference', [])
         self.reference = ('\n'.join(reference_raw) if isinstance(reference_raw, list)
                          else reference_raw)
-        formula_raw = self.data_json.get('formula', [])
+        formula_raw = self.json.get('formula', [])
         self.formula = ('\n'.join(formula_raw) if isinstance(formula_raw, list)
                        else formula_raw)
-        example_raw = self.data_json.get('example', [])
+        example_raw = self.json.get('example', [])
         self.example = ('\n'.join(example_raw) if isinstance(example_raw, list)
                        else example_raw)
-        maple_raw = self.data_json.get('maple', [])
+        maple_raw = self.json.get('maple', [])
         self.maple = ('\n'.join(maple_raw) if isinstance(maple_raw, list)
                      else maple_raw)
-        mathematica_raw = self.data_json.get('mathematica', [])
+        mathematica_raw = self.json.get('mathematica', [])
         self.mathematica = ('\n'.join(mathematica_raw) if isinstance(mathematica_raw, list)
                            else mathematica_raw)
-        program_raw = self.data_json.get('program', [])
+        program_raw = self.json.get('program', [])
         self.program = ('\n'.join(program_raw) if isinstance(program_raw, list)
                        else program_raw)
-        xref_raw = self.data_json.get('xref', [])
+        xref_raw = self.json.get('xref', [])
         self.xref = ('\n'.join(xref_raw) if isinstance(xref_raw, list)
                     else xref_raw)
-        self.keyword = self.data_json.get('keyword', '')
-        self.offset = self.data_json.get('offset', '')
-        self.author = self.data_json.get('author', '')
-        references_raw = self.data_json.get('references', [])
+        self.keyword = self.json.get('keyword', '')
+        self.offset = self.json.get('offset', '')
+        self.author = self._parse_authors(self.json.get('author', ''))
+        references_raw = self.json.get('references', [])
         self.references = ('\n'.join(references_raw) if isinstance(references_raw, list)
                           else references_raw)
-        self.revision = self.data_json.get('revision', '')
+        self.revision = self.json.get('revision', '')
 
         # Parse M and N IDs from the 'id' field
-        id_str = self.data_json.get('id', '')
+        id_str = self.json.get('id', '')
         parts = id_str.split() if id_str else []
         self.m_id = parts[0] if parts else None
         self.n_id = parts[1] if len(parts) > 1 else None
 
         # Parse time and created as datetime objects
-        time_str = self.data_json.get('time')
+        time_str = self.json.get('time')
         self.time = datetime.fromisoformat(time_str) if time_str else None
-        created_str = self.data_json.get('created')
+        created_str = self.json.get('created')
         self.created = datetime.fromisoformat(created_str) if created_str else None
 
         # Parse links as formatted text with hyperlinks
-        links = self.data_json.get('link', [])
+        links = self.json.get('link', [])
         formatted_links = []
         for link in links:
             # Parse HTML <a href="url">text</a> and convert to Markdown [text](url)
@@ -125,10 +125,63 @@ class Sequence:
         # Fetch BFile if content if b-file link is present
         self.bfile = BFile(self.id)
 
+    @staticmethod
+    def _parse_authors(author_raw):
+        """
+        Parse OEIS author field into a clean list of author names.
+
+        The OEIS author field may include markdown-like underscores for
+        emphasis (e.g. ``_Tom Verhoeff_, _N. J. A. Sloane_``). This
+        method removes wrapper underscores and returns a list of names.
+
+        Args:
+            author_raw (str or list[str]): Raw author value from OEIS JSON.
+
+        Returns:
+            list[str]: Cleaned author names.
+        """
+        if isinstance(author_raw, list):
+            chunks = author_raw
+        elif isinstance(author_raw, str):
+            chunks = author_raw.split(",")
+        else:
+            return []
+
+        authors = []
+        for chunk in chunks:
+            name = chunk.strip()
+            name = re.sub(r'^_+|_+$', '', name).strip()
+            if Sequence._is_date_token(name):
+                continue
+            if name:
+                authors.append(name)
+        return authors
+
+    @staticmethod
+    def _is_date_token(value):
+        """
+        Return True when a token is a date-like value, not an author name.
+
+        Examples that should be filtered:
+        - ``1964``
+        - ``Apr 28 2012``
+        - ``Apr 28, 2012``
+        - ``2012-04-28``
+        """
+        if re.fullmatch(r"\d{4}", value):
+            return True
+
+        date_patterns = [
+            r"[A-Za-z]{3,9}\.? \d{1,2},? \d{4}",
+            r"\d{1,2} [A-Za-z]{3,9}\.? \d{4}",
+            r"\d{4}-\d{2}-\d{2}",
+        ]
+        return any(re.fullmatch(pattern, value) for pattern in date_patterns)
+
 __all__ = ["__version__",
             "check_id",
             "oeis_bfile",
             "oeis_url",
             "OEIS_URL",
-            "Bfile",
+            "BFile",
             "Sequence"]

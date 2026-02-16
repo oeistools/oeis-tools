@@ -4,67 +4,81 @@
 [![PyPI version](https://img.shields.io/pypi/v/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**oeis-tools** is a Python package providing utilities for working with the Online Encyclopedia of Integer Sequences (OEIS).
+`oeis-tools` is a Python package for working with the
+[Online Encyclopedia of Integer Sequences (OEIS)](https://oeis.org/).
 
-It offers functions to validate OEIS IDs, generate b-file filenames, and construct OEIS URLs for different formats.
+It provides:
+- OEIS ID validation
+- URL and b-file helpers
+- A `Sequence` class for OEIS JSON entries
+- A `BFile` class for b-file numeric data
 
 ## Installation
 
-Install from PyPI:
+From PyPI:
 
 ```bash
 pip install oeis-tools
 ```
 
-Or install from source:
+From source:
 
 ```bash
 git clone https://github.com/oeistools/oeis-tools.git
 cd oeis-tools
-pip install .
+pip install -e .
 ```
 
-## Usage
+Development dependencies (tests):
 
-Import the package and use the functions:
+```bash
+pip install -e ".[dev]"
+```
+
+## Quick Start
 
 ```python
 import oeis_tools
 
-# Validate an OEIS ID
-print(oeis_tools.check_id("A000001"))  # True
-
-# Generate b-file filename
-print(oeis_tools.oeis_bfile("A000001"))  # b000001.txt
-
-# Generate OEIS URL
-print(oeis_tools.oeis_url("A000001"))  # https://oeis.org/A000001
+# Utilities
+print(oeis_tools.check_id("A000001"))              # True
+print(oeis_tools.oeis_bfile("A000001"))            # b000001.txt
 print(oeis_tools.oeis_url("A000001", fmt="json"))  # https://oeis.org/search?q=id:A000001&fmt=json
+
+# Sequence API
+seq = oeis_tools.Sequence("A000045")
+print(seq.name)        # Fibonacci numbers
+print(seq.data)        # comma-separated terms
+print(seq.author)      # list[str]
+print(seq.json["id"])  # raw JSON field access
+
+# B-file API
+bfile = oeis_tools.BFile("A000045")
+print(bfile.get_filename())      # b000045.txt
+print(bfile.get_url())           # https://oeis.org/A000045/b000045.txt
+print(bfile.get_bfile_data()[:5])
 ```
 
-## Functions
+## API Overview
 
-- `check_id(oeis_id)`: Validates if the given string is a valid OEIS ID (starts with 'A' followed by 6 digits).
-- `oeis_bfile(oeis_id)`: Returns the b-file filename for the given OEIS ID.
-- `oeis_url(oeis_id, fmt=None)`: Generates the OEIS URL. `fmt` can be 'json', 'text', 'bfile', or None for the main page.
+- `check_id(oeis_id: str) -> bool`
+- `oeis_bfile(oeis_id: str) -> str`
+- `oeis_url(oeis_id: str, fmt: str | None = None) -> str`
+- `Sequence(oeis_id: str)`
+  - Key attributes: `id`, `json`, `name`, `data`, `author`, `link`, `bfile`
+- `BFile(oeis_id: str)`
+  - Methods: `get_filename()`, `get_url()`, `get_bfile_data()`
 
-## Classes
+## Running Tests
 
-- `OEISSequence(oeis_id)`: A class that fetches and stores the JSON data for the given OEIS ID in the `data_json` attribute (as a dict). Also provides parsed attributes: `oeis_m_id`, `oeis_n_id` (or None), `oeis_time`, `oeis_created` (as datetime objects), `oeis_link` (formatted links as Markdown), and `bfile` (text content of the b-file if available).
-
-Example:
-
-```python
-seq = oeis_tools.OEISSequence("A000045")
-print(seq.data_json['name'])  # Fibonacci numbers...
-print(seq.bfile.split('\n')[0])  # First line of b-file
+```bash
+pytest -q
 ```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT. See `LICENSE`.
 
 ## Author
 
 Enrique Pérez Herrero - [energycode.org@gmail.com](mailto:energycode.org@gmail.com)
-```

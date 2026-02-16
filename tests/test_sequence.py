@@ -52,7 +52,7 @@ def test_sequence_parses_json_fields_and_builds_links(monkeypatch):
             "xref": ["Cf. A000204"],
             "keyword": "nonn",
             "offset": "0,2",
-            "author": "N. J. A. Sloane",
+            "author": "_Tom Verhoeff_, _N. J. A. Sloane_",
             "references": ["Some extra reference"],
             "revision": "42",
             "time": "2024-01-02 03:04:05",
@@ -76,6 +76,7 @@ def test_sequence_parses_json_fields_and_builds_links(monkeypatch):
     assert seq.name == "Fibonacci numbers"
     assert seq.comment == "First comment\nSecond comment"
     assert seq.reference == "Ref A\nRef B"
+    assert seq.author == ["Tom Verhoeff", "N. J. A. Sloane"]
     assert seq.keyword == "nonn"
     assert seq.time == datetime(2024, 1, 2, 3, 4, 5)
     assert seq.created == datetime(2000, 1, 1, 0, 0, 0)
@@ -101,3 +102,37 @@ def test_sequence_propagates_http_error(monkeypatch):
 
     with pytest.raises(requests.HTTPError, match="request failed"):
         Sequence("A000001")
+
+
+def test_sequence_author_ignores_trailing_year_tokens(monkeypatch):
+    """Drop year-only entries when parsing the OEIS author field."""
+    payload = [
+        {
+            "id": "M0001 N0001",
+            "author": "_N. J. A. Sloane_, 1964",
+            "link": [],
+        }
+    ]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    assert seq.author == ["N. J. A. Sloane"]
+
+
+def test_sequence_author_ignores_trailing_full_date_tokens(monkeypatch):
+    """Drop full date entries when parsing the OEIS author field."""
+    payload = [
+        {
+            "id": "M0001 N0001",
+            "author": "_Pierre CAMI_, Apr 28 2012",
+            "link": [],
+        }
+    ]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    assert seq.author == ["Pierre CAMI"]
