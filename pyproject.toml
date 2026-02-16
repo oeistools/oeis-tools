@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oeis-tools"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Tools and utilities for working with OEIS integer sequences"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -49,6 +49,9 @@ Documentation = "https://github.com/oeistools/oeis-tools#readme"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+
+[tool.setuptools.dynamic]
+version = {attr = "oeis_tools.__version__.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
