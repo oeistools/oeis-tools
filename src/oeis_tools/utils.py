@@ -40,7 +40,7 @@ def oeis_bfile(oeis_id):
     Args:
         oeis_id (str): A valid OEIS ID, e.g., 'A000001'.
     
-    Returns:
+    Returns:[print(item[0]) for item in json_dict()]
         str: The b-file filename, e.g., 'b000001.txt'.
     
     Raises:

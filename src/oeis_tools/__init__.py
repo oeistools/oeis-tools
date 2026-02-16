@@ -19,12 +19,16 @@ For more details, refer to the documentation in individual modules.
 
 from .__version__ import __version__
 from .utils import check_id, oeis_bfile, oeis_url
-from .core import Sequence
+from .utils import OEIS_URL
+from .bfile import BFile
+from .sequence import Sequence
 
 __all__ = [
     "__version__",
     "check_id",
     "oeis_bfile",
     "oeis_url",
+    "OEIS_URL",
+    "BFile",
     "Sequence",
 ]

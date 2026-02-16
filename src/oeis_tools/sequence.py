@@ -6,6 +6,7 @@ import requests
 
 from .__version__ import __version__
 from .utils import check_id, oeis_bfile, oeis_url, OEIS_URL
+from .bfile import BFile
 
 class Sequence:
     """
@@ -19,8 +20,7 @@ class Sequence:
         time (datetime or None): The last modification time from the 'time' field.
         created (datetime or None): The creation time from the 'created' field.
         link (str): Formatted links from the 'link' field as printable text with hyperlinks.
-        bfile (str or None): The text content of the b-file if available, else None.
-        bfile_data (list of int or None): Parsed numeric data from bfile, as list of values.
+        BFile (BFile or None): The BFile object if available, else None.
         data (str): The sequence data from the 'data' field.
         name (str): The sequence name from the 'name' field.
         comment (str): Comments from the 'comment' field.
@@ -40,7 +40,7 @@ class Sequence:
 
     def __init__(self, oeis_id):
         """
-        Initialize the OEISSequence with the given OEIS ID.
+        Initialize the Sequence with the given OEIS ID.
         
         Args:
             oeis_id (str): The OEIS ID, e.g., 'A000001'.
@@ -122,26 +122,13 @@ class Sequence:
                 formatted_links.append(formatted_link)
         self.link = '\n'.join(formatted_links) if formatted_links else ''
 
-        # Fetch b-file content if b-file link is present
-        bfile_url = oeis_url(self.id, fmt="bfile")
-        if bfile_url in self.link:
-            try:
-                bfile_response = requests.get(bfile_url, timeout=10)
-                bfile_response.raise_for_status()
-                self.bfile = bfile_response.text
-            except requests.RequestException:
-                self.bfile = None
-        else:
-            self.bfile = None
+        # Fetch BFile if content if b-file link is present
+        self.bfile = BFile(self.id)
 
-        # Parse bfile to numeric data
-        if self.bfile:
-            try:
-                lines = self.bfile.strip().split('\n')
-                self.bfile_data = [int(line.split()[1]) for line in lines if line.strip()]
-            except (ValueError, IndexError):
-                self.bfile_data = None
-        else:
-            self.bfile_data = None
-
-__all__ = ["__version__", "check_id", "oeis_bfile", "oeis_url", "Sequence"]
+__all__ = ["__version__",
+            "check_id",
+            "oeis_bfile",
+            "oeis_url",
+            "OEIS_URL",
+            "Bfile",
+            "Sequence"]
