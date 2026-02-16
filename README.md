@@ -1,5 +1,9 @@
 # oeis-tools
 
+[![Tests](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml/badge.svg)](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml)
+[![PyPI version](https://img.shields.io/pypi/v/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 **oeis-tools** is a Python package providing utilities for working with the Online Encyclopedia of Integer Sequences (OEIS).
 
 It offers functions to validate OEIS IDs, generate b-file filenames, and construct OEIS URLs for different formats.
