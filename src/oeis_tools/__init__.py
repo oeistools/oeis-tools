@@ -12,7 +12,7 @@ Example usage:
     from oeis_tools import Sequence
 
     seq = Sequence.from_id('A000045')  # Fetch Fibonacci sequence
-    print(seq.terms[:10])  # Output first 10 terms
+    print(seq.terms[:12])  # Output first 12 terms
 
 For more details, refer to the documentation in individual modules.
 """
