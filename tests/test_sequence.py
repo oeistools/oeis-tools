@@ -77,7 +77,8 @@ def test_sequence_parses_json_fields_and_builds_links(monkeypatch):
     assert seq.comment == "First comment\nSecond comment"
     assert seq.reference == "Ref A\nRef B"
     assert seq.author == ["Tom Verhoeff", "N. J. A. Sloane"]
-    assert seq.keyword == "nonn"
+    assert seq.keyword == ["nonn"]
+    assert seq.offset == [0, 2]
     assert seq.time == datetime(2024, 1, 2, 3, 4, 5)
     assert seq.created == datetime(2000, 1, 1, 0, 0, 0)
     assert "[Main entry](https://oeis.org/A000045)" in seq.link
@@ -136,3 +137,37 @@ def test_sequence_author_ignores_trailing_full_date_tokens(monkeypatch):
 
     seq = Sequence("A000001")
     assert seq.author == ["Pierre CAMI"]
+
+
+def test_sequence_offset_ignores_invalid_tokens(monkeypatch):
+    """Parse integer offsets and ignore malformed tokens."""
+    payload = [
+        {
+            "id": "M0001 N0001",
+            "offset": "1, bad, -3",
+            "link": [],
+        }
+    ]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    assert seq.offset == [1, -3]
+
+
+def test_sequence_keyword_splits_and_ignores_empty_tokens(monkeypatch):
+    """Parse keywords into a list and drop empty entries."""
+    payload = [
+        {
+            "id": "M0001 N0001",
+            "keyword": "nonn, easy, ,look",
+            "link": [],
+        }
+    ]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    assert seq.keyword == ["nonn", "easy", "look"]

@@ -31,8 +31,8 @@ class Sequence:
         mathematica (str): Mathematica code from the 'mathematica' field.
         program (str): Programs from the 'program' field.
         xref (str): Cross-references from the 'xref' field.
-        keyword (str): Keywords from the 'keyword' field.
-        offset (str): Offset information from the 'offset' field.
+        keyword (list[str]): Keywords parsed from the 'keyword' field.
+        offset (list[int]): Offset values parsed from the 'offset' field.
         author (list[str]): Author names parsed from the 'author' field.
         references (str): Additional references from the 'references' field.
         revision (str): Revision information from the 'revision' field.
@@ -85,8 +85,8 @@ class Sequence:
         xref_raw = self.json.get('xref', [])
         self.xref = ('\n'.join(xref_raw) if isinstance(xref_raw, list)
                     else xref_raw)
-        self.keyword = self.json.get('keyword', '')
-        self.offset = self.json.get('offset', '')
+        self.keyword = self._parse_keywords(self.json.get('keyword', ''))
+        self.offset = self._parse_offset(self.json.get('offset', ''))
         self.author = self._parse_authors(self.json.get('author', ''))
         references_raw = self.json.get('references', [])
         self.references = ('\n'.join(references_raw) if isinstance(references_raw, list)
@@ -177,6 +177,53 @@ class Sequence:
             r"\d{4}-\d{2}-\d{2}",
         ]
         return any(re.fullmatch(pattern, value) for pattern in date_patterns)
+
+    @staticmethod
+    def _parse_offset(offset_raw):
+        """
+        Parse OEIS offset field into a list of integers.
+
+        Typical OEIS values look like ``"0,2"`` and are returned as ``[0, 2]``.
+        """
+        if isinstance(offset_raw, list):
+            tokens = offset_raw
+        elif isinstance(offset_raw, str):
+            tokens = offset_raw.split(",")
+        else:
+            return []
+
+        offsets = []
+        for token in tokens:
+            value = str(token).strip()
+            if not value:
+                continue
+            try:
+                offsets.append(int(value))
+            except ValueError:
+                continue
+        return offsets
+
+    @staticmethod
+    def _parse_keywords(keyword_raw):
+        """
+        Parse OEIS keyword field into a list of strings.
+
+        Typical OEIS values look like ``"nonn,easy"`` and are returned as
+        ``["nonn", "easy"]``.
+        """
+        if isinstance(keyword_raw, list):
+            tokens = keyword_raw
+        elif isinstance(keyword_raw, str):
+            tokens = keyword_raw.split(",")
+        else:
+            return []
+
+        keywords = []
+        for token in tokens:
+            value = str(token).strip()
+            if value:
+                keywords.append(value)
+        return keywords
 
 __all__ = ["__version__",
             "check_id",
