@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml/badge.svg)](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml)
 [![PyPI version](https://img.shields.io/pypi/v/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 `oeis-tools` is a Python package for working with the
 [Online Encyclopedia of Integer Sequences (OEIS)](https://oeis.org/).

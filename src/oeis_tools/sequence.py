@@ -125,6 +125,37 @@ class Sequence:
         # Fetch BFile if content if b-file link is present
         self.bfile = BFile(self.id)
 
+    def get_bfile_info(self):
+        """
+        Return summary information about the attached b-file data.
+
+        Returns:
+            dict: Metadata and basic stats for b-file values.
+        """
+        data = self.bfile.get_bfile_data() if self.bfile else None
+        if data is None:
+            return {
+                "available": False,
+                "filename": self.bfile.get_filename() if self.bfile else None,
+                "url": self.bfile.get_url() if self.bfile else None,
+                "length": 0,
+                "first": None,
+                "last": None,
+                "min": None,
+                "max": None,
+            }
+
+        return {
+            "available": True,
+            "filename": self.bfile.get_filename(),
+            "url": self.bfile.get_url(),
+            "length": len(data),
+            "first": data[0] if data else None,
+            "last": data[-1] if data else None,
+            "min": min(data) if data else None,
+            "max": max(data) if data else None,
+        }
+
     @staticmethod
     def _parse_authors(author_raw):
         """

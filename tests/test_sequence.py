@@ -34,6 +34,18 @@ class DummyBFile:
         """Keep the sequence ID passed by ``Sequence``."""
         self.oeis_id = oeis_id
 
+    def get_filename(self):
+        """Provide default b-file filename in tests."""
+        return "b000001.txt"
+
+    def get_url(self):
+        """Provide default b-file URL in tests."""
+        return "https://oeis.org/A000001/b000001.txt"
+
+    def get_bfile_data(self):
+        """Default to no parsed b-file data."""
+        return None
+
 
 def test_sequence_parses_json_fields_and_builds_links(monkeypatch):
     """Parse key OEIS fields, datetimes, links, and b-file integration."""
@@ -171,3 +183,53 @@ def test_sequence_keyword_splits_and_ignores_empty_tokens(monkeypatch):
 
     seq = Sequence("A000001")
     assert seq.keyword == ["nonn", "easy", "look"]
+
+
+def test_sequence_get_bfile_info_with_data(monkeypatch):
+    """Return metadata and stats when b-file data is available."""
+    payload = [{"id": "M0001 N0001", "link": []}]
+
+    class BFileWithData(DummyBFile):
+        def get_filename(self):
+            return "b000045.txt"
+
+        def get_url(self):
+            return "https://oeis.org/A000045/b000045.txt"
+
+        def get_bfile_data(self):
+            return [0, 1, 1, 2, 3]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", BFileWithData)
+
+    seq = Sequence("A000001")
+    info = seq.get_bfile_info()
+
+    assert info["available"] is True
+    assert info["filename"] == "b000045.txt"
+    assert info["url"] == "https://oeis.org/A000045/b000045.txt"
+    assert info["length"] == 5
+    assert info["first"] == 0
+    assert info["last"] == 3
+    assert info["min"] == 0
+    assert info["max"] == 3
+
+
+def test_sequence_get_bfile_info_without_data(monkeypatch):
+    """Return unavailable metadata when b-file data is missing."""
+    payload = [{"id": "M0001 N0001", "link": []}]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    info = seq.get_bfile_info()
+
+    assert info["available"] is False
+    assert info["filename"] == "b000001.txt"
+    assert info["url"] == "https://oeis.org/A000001/b000001.txt"
+    assert info["length"] == 0
+    assert info["first"] is None
+    assert info["last"] is None
+    assert info["min"] is None
+    assert info["max"] is None
