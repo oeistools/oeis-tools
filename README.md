@@ -1,9 +1,7 @@
 # oeis-tools
 
 [![Tests](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml/badge.svg)](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml)
-[![PyPI version](https://img.shields.io/pypi/v/oeis-tools.svg?cacheSeconds=60
-g)](https://img.shields.io/pypi/v/oeis-tools.svg?cacheSeconds=60
-)
+[![PyPI version](https://img.shields.io/pypi/v/oeis-tools.svg?cacheSeconds=60)](https://pypi.org/project/oeis-tools/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Python helpers for the [Online Encyclopedia of Integer Sequences (OEIS)](https://oeis.org/).
