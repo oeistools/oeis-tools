@@ -2,6 +2,9 @@
 
 [![Tests](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml/badge.svg)](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml)
 [![PyPI version](https://img.shields.io/pypi/v/oeis-tools.svg?cacheSeconds=60)](https://pypi.org/project/oeis-tools/)
+[![Python versions](https://img.shields.io/pypi/pyversions/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
+[![Wheel](https://img.shields.io/pypi/wheel/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
+[![Package format](https://img.shields.io/pypi/format/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Python helpers for the [Online Encyclopedia of Integer Sequences (OEIS)](https://oeis.org/).
