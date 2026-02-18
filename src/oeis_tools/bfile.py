@@ -96,3 +96,44 @@ class BFile:
             b-file, or None if the b-file could not be fetched or parsed.
         """
         return self.data
+
+    def plot_data(self, show=True, ax=None, **plot_kwargs):
+        """
+        Plot parsed b-file values against their index.
+
+        Args:
+            show (bool): Call ``matplotlib.pyplot.show()`` when True.
+            ax: Optional matplotlib Axes object to plot into.
+            **plot_kwargs: Keyword arguments forwarded to ``ax.plot``.
+
+        Returns:
+            matplotlib.axes.Axes: The axes containing the plot.
+
+        Raises:
+            ValueError: If no b-file data is available.
+            ImportError: If ``matplotlib`` is not installed.
+        """
+        values = self.get_bfile_data()
+        if not values:
+            raise ValueError("No b-file data available to plot.")
+
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError as exc:
+            raise ImportError(
+                "matplotlib is required for plotting. Install with: pip install matplotlib"
+            ) from exc
+
+        if ax is None:
+            _, ax = plt.subplots()
+
+        x_values = range(len(values))
+        ax.plot(x_values, values, **plot_kwargs)
+        ax.set_title(f"{self.oeis_id} b-file data")
+        ax.set_xlabel("Index")
+        ax.set_ylabel("Value")
+
+        if show:
+            plt.show()
+
+        return ax

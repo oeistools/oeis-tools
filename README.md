@@ -72,6 +72,7 @@ bfile = BFile("A000045")
 print(bfile.get_filename())   # b000045.txt
 print(bfile.get_url())        # https://oeis.org/A000045/b000045.txt
 print(bfile.get_bfile_data()) # list[int] or None
+bfile.plot_data(show=False)   # matplotlib Axes
 ```
 
 ## API Summary
@@ -85,6 +86,7 @@ print(bfile.get_bfile_data()) # list[int] or None
 - `BFile.get_filename() -> str`
 - `BFile.get_url() -> str`
 - `BFile.get_bfile_data() -> list[int] | None`
+- `BFile.plot_data(show: bool = True, ax=None, **plot_kwargs)`
 
 ## Error Behavior
 

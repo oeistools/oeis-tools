@@ -156,6 +156,40 @@ class Sequence:
             "max": max(data) if data else None,
         }
 
+    def get_xref_ids(self):
+        """
+        Extract OEIS IDs from the parsed cross-reference text.
+
+        Returns:
+            list[str]: Unique OEIS IDs (e.g. ``A000045``) in first-seen order.
+        """
+        xref_text = self.xref or ""
+        ids = re.findall(r"A\d{6}", xref_text)
+        return list(dict.fromkeys(ids))
+
+    def get_data_values(self):
+        """
+        Parse the sequence data field into integers.
+
+        Returns:
+            list[int]: Values extracted from ``self.data``.
+        """
+        data_raw = self.data
+        if isinstance(data_raw, list):
+            tokens = data_raw
+        elif isinstance(data_raw, str):
+            tokens = re.findall(r"[-+]?\d+", data_raw)
+        else:
+            return []
+
+        values = []
+        for token in tokens:
+            try:
+                values.append(int(token))
+            except (TypeError, ValueError):
+                continue
+        return values
+
     @staticmethod
     def _parse_authors(author_raw):
         """

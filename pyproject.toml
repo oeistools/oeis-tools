@@ -39,6 +39,9 @@ dependencies = [
 dev = [
   "pytest>=7.4"
 ]
+plot = [
+  "matplotlib>=3.8"
+]
 
 [project.urls]
 Homepage = "https://github.com/oeistools/oeis-tools"

@@ -233,3 +233,88 @@ def test_sequence_get_bfile_info_without_data(monkeypatch):
     assert info["last"] is None
     assert info["min"] is None
     assert info["max"] is None
+
+
+def test_sequence_get_xref_ids_extracts_unique_oeis_ids(monkeypatch):
+    """Extract OEIS IDs from multi-line cross-reference text."""
+    payload = [
+        {
+            "id": "M0001 N0001",
+            "xref": [
+                "Essentially the partial sums of A001468.",
+                "Cf. A000201, A001622, A003622, A022342, A026351, A035336, A060143.",
+                "Cf. A004919, A004920, A004921, A004922, A004923, A004924, A004925.",
+                "Cf. A004926, A004927, A004928, A004929, A004930, A004931, A004932.",
+                "Cf. A004933, A004934, A004935, A004976, A090909, A000201.",
+            ],
+            "link": [],
+        }
+    ]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    assert seq.get_xref_ids() == [
+        "A001468",
+        "A000201",
+        "A001622",
+        "A003622",
+        "A022342",
+        "A026351",
+        "A035336",
+        "A060143",
+        "A004919",
+        "A004920",
+        "A004921",
+        "A004922",
+        "A004923",
+        "A004924",
+        "A004925",
+        "A004926",
+        "A004927",
+        "A004928",
+        "A004929",
+        "A004930",
+        "A004931",
+        "A004932",
+        "A004933",
+        "A004934",
+        "A004935",
+        "A004976",
+        "A090909",
+    ]
+
+
+def test_sequence_get_data_values_parses_integer_terms(monkeypatch):
+    """Parse OEIS data string into integer values."""
+    payload = [
+        {
+            "id": "M0001 N0001",
+            "data": "0,1,1,2,3,5,8,13,21,34",
+            "link": [],
+        }
+    ]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    assert seq.get_data_values() == [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+
+
+def test_sequence_get_data_values_ignores_non_numeric_fragments(monkeypatch):
+    """Ignore ellipsis and malformed chunks while parsing integers."""
+    payload = [
+        {
+            "id": "M0001 N0001",
+            "data": "-2, -1, 0, 1, 2, ..., bad",
+            "link": [],
+        }
+    ]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    assert seq.get_data_values() == [-2, -1, 0, 1, 2]
