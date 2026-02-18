@@ -16,6 +16,9 @@ Typical usage:
     >>> bfile.get_bfile_data()
 """
 
+import math
+import sys
+
 import requests
 from .utils import oeis_bfile, oeis_url
 
@@ -40,6 +43,7 @@ class BFile:
         self.oeis_id = oeis_id
         self.filename = oeis_bfile(oeis_id)
         self.url = oeis_url(oeis_id, fmt="bfile")
+        self.indices = None
         self.data = self.fetch_bfile_data()
 
     def fetch_bfile_data(self):
@@ -55,6 +59,7 @@ class BFile:
         except requests.RequestException:
             return None
 
+        indices = []
         data = []
         for line in response.text.splitlines():
             line = line.strip()
@@ -62,11 +67,14 @@ class BFile:
                 continue
             try:
                 # format: n a(n)
-                _, value = line.split()
+                index, value, *_ = line.split()
+                indices.append(int(index))
                 data.append(int(value))
             except (ValueError, IndexError):
+                self.indices = None
                 return None
 
+        self.indices = indices
         return data
 
     def get_filename(self):
@@ -97,17 +105,31 @@ class BFile:
         """
         return self.data
 
-    def plot_data(self, show=True, ax=None, **plot_kwargs):
+    def get_bfile_indices(self):
+        """
+        Return index values parsed from the OEIS b-file first column.
+
+        Returns:
+            list[int] or None: A list of b-file indices, or None when parsing failed.
+        """
+        return self.indices
+
+    def plot_data(self, n=None, show=True, ax=None, return_ax=False, **plot_kwargs):
         """
         Plot parsed b-file values against their index.
 
         Args:
+            n (int | None): Number of leading data points to plot. When ``None``,
+                all available points are plotted.
             show (bool): Call ``matplotlib.pyplot.show()`` when True.
             ax: Optional matplotlib Axes object to plot into.
+            return_ax (bool): Return the matplotlib Axes when True. Defaults to
+                False to avoid notebook output noise.
             **plot_kwargs: Keyword arguments forwarded to ``ax.plot``.
 
         Returns:
-            matplotlib.axes.Axes: The axes containing the plot.
+            matplotlib.axes.Axes | None: The axes when ``return_ax=True``;
+            otherwise ``None``.
 
         Raises:
             ValueError: If no b-file data is available.
@@ -117,8 +139,14 @@ class BFile:
         if not values:
             raise ValueError("No b-file data available to plot.")
 
+        if n is not None:
+            if not isinstance(n, int):
+                raise TypeError("n must be an integer or None.")
+            if n < 0:
+                raise ValueError("n must be non-negative.")
+
         try:
-            import matplotlib.pyplot as plt
+            import matplotlib.pyplot as plt  # pylint: disable=import-outside-toplevel
         except ImportError as exc:
             raise ImportError(
                 "matplotlib is required for plotting. Install with: pip install matplotlib"
@@ -127,13 +155,47 @@ class BFile:
         if ax is None:
             _, ax = plt.subplots()
 
-        x_values = range(len(values))
-        ax.plot(x_values, values, **plot_kwargs)
-        ax.set_title(f"{self.oeis_id} b-file data")
-        ax.set_xlabel("Index")
-        ax.set_ylabel("Value")
+        indices = self.get_bfile_indices()
+        plot_values = values if n is None else values[:n]
+        use_bfile_indices = bool(indices) and len(indices) == len(values)
+        if use_bfile_indices:
+            x_values = indices if n is None else indices[:n]
+        else:
+            x_values = range(len(plot_values))
+
+        use_log_magnitude = any(abs(value) > sys.float_info.max for value in plot_values)
+
+        if use_log_magnitude:
+            # Matplotlib stores data as float; extremely large integers overflow.
+            log10_2 = math.log10(2.0)
+
+            def safe_log10_abs_int(value):
+                absolute = abs(value)
+                if absolute <= sys.float_info.max:
+                    return math.log10(absolute)
+
+                # Compute log10(n) using bit-length scaling to avoid float overflow.
+                shift = max(absolute.bit_length() - 53, 0)
+                mantissa = absolute >> shift
+                return math.log10(mantissa) + shift * log10_2
+
+            y_values = [
+                0.0
+                if value == 0
+                else (-safe_log10_abs_int(value) if value < 0 else safe_log10_abs_int(value))
+                for value in plot_values
+            ]
+            ax.plot(x_values, y_values, **plot_kwargs)
+            ax.set_title(f"{self.oeis_id} b-file data (log10 magnitude)")
+            ax.set_ylabel("sign(value) * log10(|value|)")
+        else:
+            ax.plot(x_values, plot_values, **plot_kwargs)
+            ax.set_title(f"{self.oeis_id} b-file data")
+            ax.set_ylabel("Value")
+
+        ax.set_xlabel("n" if use_bfile_indices else "Index")
 
         if show:
             plt.show()
 
-        return ax
+        return ax if return_ax else None

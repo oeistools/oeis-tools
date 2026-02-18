@@ -72,7 +72,8 @@ bfile = BFile("A000045")
 print(bfile.get_filename())   # b000045.txt
 print(bfile.get_url())        # https://oeis.org/A000045/b000045.txt
 print(bfile.get_bfile_data()) # list[int] or None
-bfile.plot_data(show=False)   # matplotlib Axes
+bfile.plot_data(50, show=False)                  # first 50 points
+ax = bfile.plot_data(show=False, return_ax=True) # matplotlib Axes
 ```
 
 ## API Summary
@@ -86,7 +87,7 @@ bfile.plot_data(show=False)   # matplotlib Axes
 - `BFile.get_filename() -> str`
 - `BFile.get_url() -> str`
 - `BFile.get_bfile_data() -> list[int] | None`
-- `BFile.plot_data(show: bool = True, ax=None, **plot_kwargs)`
+- `BFile.plot_data(n: int | None = None, show: bool = True, ax=None, return_ax: bool = False, **plot_kwargs)`
 
 ## Error Behavior
 
