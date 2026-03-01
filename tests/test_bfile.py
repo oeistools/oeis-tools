@@ -289,7 +289,10 @@ def test_bfile_plot_data_uses_log10_for_very_large_values(monkeypatch):
 
     assert result is None
     assert fake_pyplot.axes.plot_calls[0][0] == [0, 1, 2, 3]
-    assert fake_pyplot.axes.plot_calls[0][1] == pytest.approx([0.0, 0.30103, -0.477121, 400.0], rel=1e-6)
+    assert fake_pyplot.axes.plot_calls[0][1] == pytest.approx(
+        [0.0, 0.30103, -0.477121, 400.0],
+        rel=1e-6,
+    )
     assert fake_pyplot.axes.plot_calls[0][2] == {"color": "blue"}
     assert fake_pyplot.axes.title == "A000045 b-file data (log10 magnitude)"
     assert fake_pyplot.axes.xlabel == "n"

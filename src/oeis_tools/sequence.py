@@ -5,11 +5,12 @@
 
 import re
 from datetime import datetime
+
 import requests
 
 from .__version__ import __version__
-from .utils import check_id, oeis_bfile, oeis_url, oeis_keyword_description, OEIS_URL
 from .bfile import BFile
+from .utils import OEIS_URL, check_id, oeis_bfile, oeis_keyword_description, oeis_url
 
 class Sequence:
     """
@@ -22,7 +23,8 @@ class Sequence:
         n_id (str or None): The N ID from the 'id' field (e.g., 'N0256'), or None.
         time (datetime or None): The last modification time from the 'time' field.
         created (datetime or None): The creation time from the 'created' field.
-        link (str): Formatted links from the 'link' field as printable text with hyperlinks.
+        link (str): Formatted links from the 'link' field as printable text
+            with hyperlinks.
         BFile (BFile or None): The BFile object if available, else None.
         data (list[int]): Parsed integer terms from the 'data' field.
         data_raw (str): Raw sequence data string from OEIS JSON.
@@ -82,8 +84,11 @@ class Sequence:
         self.maple = ('\n'.join(maple_raw) if isinstance(maple_raw, list)
                      else maple_raw)
         mathematica_raw = self.json.get('mathematica', [])
-        self.mathematica = ('\n'.join(mathematica_raw) if isinstance(mathematica_raw, list)
-                           else mathematica_raw)
+        self.mathematica = (
+            '\n'.join(mathematica_raw)
+            if isinstance(mathematica_raw, list)
+            else mathematica_raw
+        )
         program_raw = self.json.get('program', [])
         self.program = ('\n'.join(program_raw) if isinstance(program_raw, list)
                        else program_raw)

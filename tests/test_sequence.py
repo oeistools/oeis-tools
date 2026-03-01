@@ -219,7 +219,10 @@ def test_sequence_get_bfile_info_with_data(monkeypatch):
         def get_bfile_data(self):
             return [0, 1, 1, 2, 3]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", BFileWithData)
 
     seq = Sequence("A000001")
@@ -239,7 +242,10 @@ def test_sequence_get_bfile_info_without_data(monkeypatch):
     """Return unavailable metadata when b-file data is missing."""
     payload = [{"id": "M0001 N0001", "link": []}]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000001")
@@ -271,7 +277,10 @@ def test_sequence_get_xref_ids_extracts_unique_oeis_ids(monkeypatch):
         }
     ]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000001")
@@ -316,7 +325,10 @@ def test_sequence_get_data_values_parses_integer_terms(monkeypatch):
         }
     ]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000001")
@@ -333,7 +345,10 @@ def test_sequence_get_data_values_ignores_non_numeric_fragments(monkeypatch):
         }
     ]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000001")
@@ -344,7 +359,10 @@ def test_sequence_get_keyword_description_returns_lookup_value(monkeypatch):
     """Resolve keyword descriptions through the sequence helper method."""
     payload = [{"id": "M0001 N0001", "keyword": "nonn, easy", "link": []}]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000001")

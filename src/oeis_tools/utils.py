@@ -28,7 +28,9 @@ OEIS_KEYWORD_DESCRIPTIONS = {
     "cofr": "A continued fraction expansion of a number.",
     "cons": "A decimal expansion of a number (occasionally another base).",
     "core": "A fundamental sequence.",
-    "dead": "An erroneous or duplicated sequence kept with pointers to correct versions.",
+    "dead": (
+        "An erroneous or duplicated sequence kept with pointers to correct versions."
+    ),
     "dumb": "An unimportant sequence.",
     "easy": "It is easy to produce terms of this sequence.",
     "eigen": "An eigensequence: a fixed sequence under some transformation.",

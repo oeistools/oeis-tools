@@ -152,7 +152,8 @@ class BFile:
             import matplotlib.pyplot as plt  # pylint: disable=import-outside-toplevel
         except ImportError as exc:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. "
+                "Install with: pip install matplotlib"
             ) from exc
 
         if ax is None:
@@ -166,7 +167,9 @@ class BFile:
         else:
             x_values = range(len(plot_values))
 
-        use_log_magnitude = any(abs(value) > sys.float_info.max for value in plot_values)
+        use_log_magnitude = any(
+            abs(value) > sys.float_info.max for value in plot_values
+        )
 
         if use_log_magnitude:
             # Matplotlib stores data as float; extremely large integers overflow.
@@ -185,7 +188,11 @@ class BFile:
             y_values = [
                 0.0
                 if value == 0
-                else (-safe_log10_abs_int(value) if value < 0 else safe_log10_abs_int(value))
+                else (
+                    -safe_log10_abs_int(value)
+                    if value < 0
+                    else safe_log10_abs_int(value)
+                )
                 for value in plot_values
             ]
             ax.plot(x_values, y_values, **plot_kwargs)
