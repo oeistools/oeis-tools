@@ -1,7 +1,7 @@
 # oeis-tools
 
-[![Tests](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml/badge.svg)](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml)
-[![Quality](https://github.com/oeistools/oeis-tools/actions/workflows/quality.yml/badge.svg)](https://github.com/oeistools/oeis-tools/actions/workflows/quality.yml)
+[![Tests](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml?query=branch%3Amain)
+[![Quality](https://github.com/oeistools/oeis-tools/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/oeistools/oeis-tools/actions/workflows/quality.yml?query=branch%3Amain)
 [![PyPI version](https://img.shields.io/pypi/v/oeis-tools.svg?cacheSeconds=60)](https://pypi.org/project/oeis-tools/)
 [![Python versions](https://img.shields.io/pypi/pyversions/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
 [![Wheel](https://img.shields.io/pypi/wheel/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
