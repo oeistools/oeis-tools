@@ -8,7 +8,7 @@
 [![Package format](https://img.shields.io/pypi/format/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Python helpers for the [Online Encyclopedia of Integer Sequences (OEIS)](https://oeis.org/).
+A Python toolkit for programmatic access, analysis, and visualization of integer sequences from the [Online Encyclopedia of Integer Sequences (OEIS)](https://oeis.org/).
 
 ## Features
 

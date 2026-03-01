@@ -5,10 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "oeis-tools"
 dynamic = ["version"]
-description = "Tools and utilities for working with OEIS integer sequences"
+description = "A Python toolkit for programmatic access, analysis, and visualization of integer sequences from the OEIS (Online Encyclopedia of Integer Sequences)."
 readme = "README.md"
 requires-python = ">=3.9"
-license = "MIT"
+license = { file = "LICENSE" }
+
 authors = [
   { name = "Enrique Pérez Herrero", email = "energycode.org@gmail.com" }
 ]
@@ -24,11 +25,13 @@ classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Science/Research",
   "Topic :: Scientific/Engineering :: Mathematics",
-  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12"
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
 ]
 
 dependencies = [
@@ -40,8 +43,10 @@ dev = [
   "pytest>=7.4",
   "ruff>=0.6",
   "build>=1.2",
-  "twine>=5.1"
+  "twine>=5.1",
+  "pre-commit>=3.7"
 ]
+
 plot = [
   "matplotlib>=3.8"
 ]
@@ -53,10 +58,29 @@ Issues = "https://github.com/oeistools/oeis-tools/issues"
 Documentation = "https://github.com/oeistools/oeis-tools#readme"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = { "" = "src" }
 
 [tool.setuptools.dynamic]
-version = {attr = "oeis_tools.__version__.__version__"}
+version = { attr = "oeis_tools.__version__.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+# ----------------------------
+# Tooling configuration
+# ----------------------------
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = []
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q"
+testpaths = [
+  "tests",
+]
