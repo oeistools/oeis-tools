@@ -3,8 +3,7 @@
 
 """Pytest configuration for local source imports."""
 
-import pathlib
-import sys
+import pathlib, sys
 
 
 SRC_DIR = pathlib.Path(__file__).resolve().parents[1] / "src"
