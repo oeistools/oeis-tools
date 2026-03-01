@@ -1,35 +1,69 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2025 EnriquePH
 
-name: Tests
+name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+    tags: ["v*"]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
+    name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - name: Check out repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
 
-      - name: Install package and test dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
 
       - name: Run tests
-        run: pytest -q
+        run: |
+          python -m pip install -e ".[dev]"
+          pytest --strict-markers --disable-warnings -ra
+
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install package (with dev extras)
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run ruff
+        run: ruff check src tests
