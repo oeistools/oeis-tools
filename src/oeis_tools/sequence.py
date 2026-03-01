@@ -8,15 +8,9 @@ from datetime import datetime
 
 import requests
 
-from .__version__ import __version__
 from .bfile import BFile
-from .utils import (
-    OEIS_URL,
-    check_id,
-    oeis_bfile,
-    oeis_keyword_description,
-    oeis_url,
-)
+from .utils import OEIS_URL, check_id, oeis_keyword_description, oeis_url
+
 
 class Sequence:
     """
@@ -344,10 +338,4 @@ class Sequence:
                 keywords.append(value)
         return keywords
 
-__all__ = ["__version__",
-            "check_id",
-            "oeis_bfile",
-            "oeis_url",
-            "OEIS_URL",
-            "BFile",
-            "Sequence"]
+__all__ = ["Sequence"]
