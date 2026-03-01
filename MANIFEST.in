@@ -1,4 +1,16 @@
-include README.md
 include LICENSE
-recursive-include tests *
-global-exclude __pycache__ *.py[cod]
+include README.md
+include CONTRIBUTING.md
+include pyproject.toml
+
+recursive-include src *.py
+recursive-include tests *.py
+recursive-include .github/workflows *.yml
+
+prune build
+prune dist
+prune .pytest_cache
+prune venv
+prune src/oeis_tools.egg-info
+
+global-exclude __pycache__ *.py[cod] .DS_Store
