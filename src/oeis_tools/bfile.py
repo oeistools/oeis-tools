@@ -23,6 +23,7 @@ import math
 import sys
 
 import requests
+
 from .utils import oeis_bfile, oeis_url
 
 

@@ -21,10 +21,9 @@ For more details, refer to the documentation in individual modules.
 """
 
 from .__version__ import __version__
-from .utils import check_id, oeis_bfile, oeis_url, oeis_keyword_description
-from .utils import OEIS_URL
 from .bfile import BFile
 from .sequence import Sequence
+from .utils import OEIS_URL, check_id, oeis_bfile, oeis_keyword_description, oeis_url
 
 __all__ = [
     "__version__",
