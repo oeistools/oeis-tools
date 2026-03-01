@@ -106,7 +106,8 @@ pytest -q
 Run lint checks:
 
 ```bash
-ruff check src tests
+ruff format .
+ruff check . --fix
 ```
 
 Build distributions:

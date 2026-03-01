@@ -16,7 +16,8 @@ python -m pip install -e ".[dev]"
 Run these checks before opening a pull request:
 
 ```bash
-ruff check src tests
+ruff format .
+ruff check . --fix
 pytest -q
 python -m build
 python -m twine check dist/*
