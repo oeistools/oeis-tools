@@ -1,8 +1,11 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2025 EnriquePH
+
 """Tests for utility helpers in ``oeis_tools.utils``."""
 
 import pytest
 
-from oeis_tools.utils import OEIS_URL, check_id, oeis_bfile, oeis_url
+from oeis_tools.utils import OEIS_URL, check_id, oeis_bfile, oeis_keyword_description, oeis_url
 
 
 def test_check_id_accepts_valid_oeis_id():
@@ -35,8 +38,23 @@ def test_oeis_url_builds_supported_formats():
     assert oeis_url("A000001", fmt="json") == f"{OEIS_URL}/search?q=id:A000001&fmt=json"
     assert oeis_url("A000001", fmt="text") == f"{OEIS_URL}/search?q=id:A000001&fmt=text"
     assert oeis_url("A000001", fmt="bfile") == f"{OEIS_URL}/A000001/b000001.txt"
+    assert oeis_url("A000001", fmt="graph") == f"{OEIS_URL}/A000001/graph?png=1"
 
 
 def test_oeis_url_falls_back_to_default_for_unknown_format():
     """Use the default entry URL when an unknown format is provided."""
     assert oeis_url("A000001", fmt="unknown") == f"{OEIS_URL}/A000001"
+
+
+def test_oeis_keyword_description_returns_expected_description():
+    """Return wiki description text for a known OEIS keyword tag."""
+    assert oeis_keyword_description("nonn") == (
+        "Displayed terms are nonnegative (later terms may still become negative)."
+    )
+
+
+def test_oeis_keyword_description_normalizes_and_handles_unknown():
+    """Normalize case/whitespace and return None for unknown tags."""
+    assert oeis_keyword_description("  EASY  ") == "It is easy to produce terms of this sequence."
+    assert oeis_keyword_description("not-a-tag") is None
+    assert oeis_keyword_description("") is None

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2025 EnriquePH
+
 """
 oeis_tools: A Python package for reading and manipulating data from OEIS.org.
 
@@ -18,7 +21,7 @@ For more details, refer to the documentation in individual modules.
 """
 
 from .__version__ import __version__
-from .utils import check_id, oeis_bfile, oeis_url
+from .utils import check_id, oeis_bfile, oeis_url, oeis_keyword_description
 from .utils import OEIS_URL
 from .bfile import BFile
 from .sequence import Sequence
@@ -28,6 +31,7 @@ __all__ = [
     "check_id",
     "oeis_bfile",
     "oeis_url",
+    "oeis_keyword_description",
     "OEIS_URL",
     "BFile",
     "Sequence",

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2025 EnriquePH
+
 """Tools and utilities for working with OEIS integer sequences."""
 
 import re
@@ -5,7 +8,7 @@ from datetime import datetime
 import requests
 
 from .__version__ import __version__
-from .utils import check_id, oeis_bfile, oeis_url, OEIS_URL
+from .utils import check_id, oeis_bfile, oeis_url, oeis_keyword_description, OEIS_URL
 from .bfile import BFile
 
 class Sequence:
@@ -189,6 +192,18 @@ class Sequence:
             except (TypeError, ValueError):
                 continue
         return values
+
+    def get_keyword_description(self, keyword_tag):
+        """
+        Return the OEIS keyword description for a given tag.
+
+        Args:
+            keyword_tag (str): OEIS keyword tag, e.g. ``"nonn"``.
+
+        Returns:
+            str or None: Description text, or ``None`` when unknown.
+        """
+        return oeis_keyword_description(keyword_tag)
 
     @staticmethod
     def _parse_authors(author_raw):

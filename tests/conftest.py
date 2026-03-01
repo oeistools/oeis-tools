@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2025 EnriquePH
+
 """Pytest configuration for local source imports."""
 
 from pathlib import Path

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2025 EnriquePH
+
 """Tests for ``oeis_tools.sequence.Sequence``."""
 
 from datetime import datetime
@@ -318,3 +321,30 @@ def test_sequence_get_data_values_ignores_non_numeric_fragments(monkeypatch):
 
     seq = Sequence("A000001")
     assert seq.get_data_values() == [-2, -1, 0, 1, 2]
+
+
+def test_sequence_get_keyword_description_returns_lookup_value(monkeypatch):
+    """Resolve keyword descriptions through the sequence helper method."""
+    payload = [{"id": "M0001 N0001", "keyword": "nonn, easy", "link": []}]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    assert seq.get_keyword_description("nonn") == (
+        "Displayed terms are nonnegative (later terms may still become negative)."
+    )
+    assert seq.get_keyword_description("easy") == "It is easy to produce terms of this sequence."
+    assert seq.get_keyword_description("missing") is None
+
+
+def test_sequence_get_keyword_description_normalizes_tag_input(monkeypatch):
+    """Normalize case/whitespace and handle empty input for keyword lookup."""
+    payload = [{"id": "M0001 N0001", "keyword": "nonn, easy", "link": []}]
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    assert seq.get_keyword_description("  EASY ") == "It is easy to produce terms of this sequence."
+    assert seq.get_keyword_description("") is None
