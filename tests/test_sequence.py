@@ -80,7 +80,10 @@ def test_sequence_parses_json_fields_and_builds_links(monkeypatch):
         }
     ]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000045")
@@ -132,7 +135,10 @@ def test_sequence_author_ignores_trailing_year_tokens(monkeypatch):
         }
     ]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000001")
@@ -149,7 +155,10 @@ def test_sequence_author_ignores_trailing_full_date_tokens(monkeypatch):
         }
     ]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000001")
@@ -166,7 +175,10 @@ def test_sequence_offset_ignores_invalid_tokens(monkeypatch):
         }
     ]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000001")
@@ -183,7 +195,10 @@ def test_sequence_keyword_splits_and_ignores_empty_tokens(monkeypatch):
         }
     ]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000001")
@@ -336,7 +351,9 @@ def test_sequence_get_keyword_description_returns_lookup_value(monkeypatch):
     assert seq.get_keyword_description("nonn") == (
         "Displayed terms are nonnegative (later terms may still become negative)."
     )
-    assert seq.get_keyword_description("easy") == "It is easy to produce terms of this sequence."
+    assert seq.get_keyword_description("easy") == (
+        "It is easy to produce terms of this sequence."
+    )
     assert seq.get_keyword_description("missing") is None
 
 
@@ -344,9 +361,14 @@ def test_sequence_get_keyword_description_normalizes_tag_input(monkeypatch):
     """Normalize case/whitespace and handle empty input for keyword lookup."""
     payload = [{"id": "M0001 N0001", "keyword": "nonn, easy", "link": []}]
 
-    monkeypatch.setattr("oeis_tools.sequence.requests.get", lambda url, timeout: DummyResponse(payload))
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
     monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
 
     seq = Sequence("A000001")
-    assert seq.get_keyword_description("  EASY ") == "It is easy to produce terms of this sequence."
+    assert seq.get_keyword_description("  EASY ") == (
+        "It is easy to produce terms of this sequence."
+    )
     assert seq.get_keyword_description("") is None

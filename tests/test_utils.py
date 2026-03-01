@@ -5,7 +5,13 @@
 
 import pytest
 
-from oeis_tools.utils import OEIS_URL, check_id, oeis_bfile, oeis_keyword_description, oeis_url
+from oeis_tools.utils import (
+    OEIS_URL,
+    check_id,
+    oeis_bfile,
+    oeis_keyword_description,
+    oeis_url,
+)
 
 
 def test_check_id_accepts_valid_oeis_id():
@@ -55,6 +61,8 @@ def test_oeis_keyword_description_returns_expected_description():
 
 def test_oeis_keyword_description_normalizes_and_handles_unknown():
     """Normalize case/whitespace and return None for unknown tags."""
-    assert oeis_keyword_description("  EASY  ") == "It is easy to produce terms of this sequence."
+    assert oeis_keyword_description("  EASY  ") == (
+        "It is easy to produce terms of this sequence."
+    )
     assert oeis_keyword_description("not-a-tag") is None
     assert oeis_keyword_description("") is None
