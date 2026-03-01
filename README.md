@@ -1,6 +1,7 @@
 # oeis-tools
 
 [![Tests](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml/badge.svg)](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml)
+[![Quality](https://github.com/oeistools/oeis-tools/actions/workflows/quality.yml/badge.svg)](https://github.com/oeistools/oeis-tools/actions/workflows/quality.yml)
 [![PyPI version](https://img.shields.io/pypi/v/oeis-tools.svg?cacheSeconds=60)](https://pypi.org/project/oeis-tools/)
 [![Python versions](https://img.shields.io/pypi/pyversions/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
 [![Wheel](https://img.shields.io/pypi/wheel/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
@@ -52,7 +53,7 @@ seq = Sequence("A000045")
 
 print(seq.id)         # A000045
 print(seq.name)       # Fibonacci numbers
-print(seq.data)       # "0,1,1,2,3,5,..."
+print(seq.data)       # [0, 1, 1, 2, 3, 5, ...]
 print(seq.author)     # list[str]
 print(seq.keyword)    # list[str]
 print(seq.offset)     # list[int]
@@ -103,12 +104,20 @@ Run tests:
 pytest -q
 ```
 
+Run lint checks:
+
+```bash
+ruff check src tests
+```
+
 Build distributions:
 
 ```bash
 python -m build
 python -m twine check dist/*
 ```
+
+Contribution guide: see `CONTRIBUTING.md`.
 
 ## Publishing
 

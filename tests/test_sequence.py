@@ -88,6 +88,8 @@ def test_sequence_parses_json_fields_and_builds_links(monkeypatch):
     assert seq.id == "A000045"
     assert seq.m_id == "M1234"
     assert seq.n_id == "N5678"
+    assert seq.data_raw == "1,1,2,3,5,8"
+    assert seq.data == [1, 1, 2, 3, 5, 8]
     assert seq.name == "Fibonacci numbers"
     assert seq.comment == "First comment\nSecond comment"
     assert seq.reference == "Ref A\nRef B"

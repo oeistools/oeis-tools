@@ -24,7 +24,8 @@ class Sequence:
         created (datetime or None): The creation time from the 'created' field.
         link (str): Formatted links from the 'link' field as printable text with hyperlinks.
         BFile (BFile or None): The BFile object if available, else None.
-        data (str): The sequence data from the 'data' field.
+        data (list[int]): Parsed integer terms from the 'data' field.
+        data_raw (str): Raw sequence data string from OEIS JSON.
         name (str): The sequence name from the 'name' field.
         comment (str): Comments from the 'comment' field.
         reference (str): References from the 'reference' field.
@@ -62,7 +63,8 @@ class Sequence:
         self.id = oeis_id
 
         # Add direct attributes from json
-        self.data = self.json.get('data', '')
+        self.data_raw = self.json.get('data', '')
+        self.data = self._parse_data_values(self.data_raw)
         self.name = self.json.get('name', '')
         comment_raw = self.json.get('comment', [])
         self.comment = ('\n'.join(comment_raw) if isinstance(comment_raw, list)
@@ -172,12 +174,38 @@ class Sequence:
 
     def get_data_values(self):
         """
-        Parse the sequence data field into integers.
+        Return the parsed sequence data terms.
 
         Returns:
             list[int]: Values extracted from ``self.data``.
         """
         data_raw = self.data
+        if isinstance(data_raw, list):
+            tokens = data_raw
+        elif isinstance(data_raw, str):
+            tokens = re.findall(r"[-+]?\d+", data_raw)
+        else:
+            return []
+
+        values = []
+        for token in tokens:
+            try:
+                values.append(int(token))
+            except (TypeError, ValueError):
+                continue
+        return values
+
+    @staticmethod
+    def _parse_data_values(data_raw):
+        """
+        Parse a raw OEIS data field into integer values.
+
+        Args:
+            data_raw (str or list): Raw ``data`` value from OEIS JSON.
+
+        Returns:
+            list[int]: Parsed integer sequence terms.
+        """
         if isinstance(data_raw, list):
             tokens = data_raw
         elif isinstance(data_raw, str):

@@ -234,12 +234,10 @@ cache/
 oeis_cache/
 
 # If generating docs with Sphinx/MkDocs
-docs/_build/
 docs/.doctrees/
 
 # If using Jupyter for prototyping
 notebooks/
-*.ipynb
 
 # If building wheels or dists locally
 *.whl
