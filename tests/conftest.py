@@ -6,7 +6,6 @@
 import sys
 from pathlib import Path
 
-
 SRC_DIR = Path(__file__).resolve().parents[1] / "src"
 src_path = str(SRC_DIR)
 if src_path not in sys.path:
