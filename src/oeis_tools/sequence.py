@@ -15,7 +15,7 @@ from .utils import OEIS_URL, check_id, oeis_keyword_description, oeis_url
 class Sequence:
     """
     A class to represent an OEIS sequence, fetching data from the JSON API.
-    
+
     Attributes:
         id (str): The OEIS ID.
         json (dict): The JSON data fetched from OEIS for the sequence.
@@ -47,10 +47,10 @@ class Sequence:
     def __init__(self, oeis_id):
         """
         Initialize the Sequence with the given OEIS ID.
-        
+
         Args:
             oeis_id (str): The OEIS ID, e.g., 'A000001'.
-        
+
         Raises:
             ValueError: If the oeis_id is invalid.
             requests.HTTPError: If the request fails.
@@ -65,72 +65,80 @@ class Sequence:
         self.id = oeis_id
 
         # Add direct attributes from json
-        self.data_raw = self.json.get('data', '')
+        self.data_raw = self.json.get("data", "")
         self.data = self._parse_data_values(self.data_raw)
-        self.name = self.json.get('name', '')
-        comment_raw = self.json.get('comment', [])
-        self.comment = ('\n'.join(comment_raw) if isinstance(comment_raw, list)
-                       else comment_raw)
-        reference_raw = self.json.get('reference', [])
-        self.reference = ('\n'.join(reference_raw) if isinstance(reference_raw, list)
-                         else reference_raw)
-        formula_raw = self.json.get('formula', [])
-        self.formula = ('\n'.join(formula_raw) if isinstance(formula_raw, list)
-                       else formula_raw)
-        example_raw = self.json.get('example', [])
-        self.example = ('\n'.join(example_raw) if isinstance(example_raw, list)
-                       else example_raw)
-        maple_raw = self.json.get('maple', [])
-        self.maple = ('\n'.join(maple_raw) if isinstance(maple_raw, list)
-                     else maple_raw)
-        mathematica_raw = self.json.get('mathematica', [])
+        self.name = self.json.get("name", "")
+        comment_raw = self.json.get("comment", [])
+        self.comment = (
+            "\n".join(comment_raw) if isinstance(comment_raw, list) else comment_raw
+        )
+        reference_raw = self.json.get("reference", [])
+        self.reference = (
+            "\n".join(reference_raw)
+            if isinstance(reference_raw, list)
+            else reference_raw
+        )
+        formula_raw = self.json.get("formula", [])
+        self.formula = (
+            "\n".join(formula_raw) if isinstance(formula_raw, list) else formula_raw
+        )
+        example_raw = self.json.get("example", [])
+        self.example = (
+            "\n".join(example_raw) if isinstance(example_raw, list) else example_raw
+        )
+        maple_raw = self.json.get("maple", [])
+        self.maple = "\n".join(maple_raw) if isinstance(maple_raw, list) else maple_raw
+        mathematica_raw = self.json.get("mathematica", [])
         self.mathematica = (
-            '\n'.join(mathematica_raw)
+            "\n".join(mathematica_raw)
             if isinstance(mathematica_raw, list)
             else mathematica_raw
         )
-        program_raw = self.json.get('program', [])
-        self.program = ('\n'.join(program_raw) if isinstance(program_raw, list)
-                       else program_raw)
-        xref_raw = self.json.get('xref', [])
-        self.xref = ('\n'.join(xref_raw) if isinstance(xref_raw, list)
-                    else xref_raw)
-        self.keyword = self._parse_keywords(self.json.get('keyword', ''))
-        self.offset = self._parse_offset(self.json.get('offset', ''))
-        self.author = self._parse_authors(self.json.get('author', ''))
-        references_raw = self.json.get('references', [])
-        self.references = ('\n'.join(references_raw) if isinstance(references_raw, list)
-                          else references_raw)
-        self.revision = self.json.get('revision', '')
+        program_raw = self.json.get("program", [])
+        self.program = (
+            "\n".join(program_raw) if isinstance(program_raw, list) else program_raw
+        )
+        xref_raw = self.json.get("xref", [])
+        self.xref = "\n".join(xref_raw) if isinstance(xref_raw, list) else xref_raw
+        self.keyword = self._parse_keywords(self.json.get("keyword", ""))
+        self.offset = self._parse_offset(self.json.get("offset", ""))
+        self.author = self._parse_authors(self.json.get("author", ""))
+        references_raw = self.json.get("references", [])
+        self.references = (
+            "\n".join(references_raw)
+            if isinstance(references_raw, list)
+            else references_raw
+        )
+        self.revision = self.json.get("revision", "")
 
         # Parse M and N IDs from the 'id' field
-        id_str = self.json.get('id', '')
+        id_str = self.json.get("id", "")
         parts = id_str.split() if id_str else []
         self.m_id = parts[0] if parts else None
         self.n_id = parts[1] if len(parts) > 1 else None
 
         # Parse time and created as datetime objects
-        time_str = self.json.get('time')
+        time_str = self.json.get("time")
         self.time = datetime.fromisoformat(time_str) if time_str else None
-        created_str = self.json.get('created')
+        created_str = self.json.get("created")
         self.created = datetime.fromisoformat(created_str) if created_str else None
 
         # Parse links as formatted text with hyperlinks
-        links = self.json.get('link', [])
+        links = self.json.get("link", [])
         formatted_links = []
         for link in links:
             # Parse HTML <a href="url">text</a> and convert to Markdown [text](url)
             match = re.search(r'<a href="([^"]*)">(.*?)</a>', link)
             if match:
                 url, text = match.groups()
-                if url.startswith('/'):
+                if url.startswith("/"):
                     url = OEIS_URL + url
                 formatted_links.append(f"[{text}]({url})")
             else:
                 # If no <a>, just add the text, but replace relative URLs
                 formatted_link = re.sub(r'href="/', f'href="{OEIS_URL}/', link)
                 formatted_links.append(formatted_link)
-        self.link = '\n'.join(formatted_links) if formatted_links else ''
+        self.link = "\n".join(formatted_links) if formatted_links else ""
 
         # Fetch BFile if content if b-file link is present
         self.bfile = BFile(self.id)
@@ -176,6 +184,53 @@ class Sequence:
         xref_text = self.xref or ""
         ids = re.findall(r"A\d{6}", xref_text)
         return list(dict.fromkeys(ids))
+
+    def get_graph_png(self, *, timeout=10, use_cache=True):
+        """
+        Download the OEIS graph image as PNG bytes.
+
+        Args:
+            timeout (int | float): Timeout in seconds for the HTTP request.
+            use_cache (bool): When True, reuse previously downloaded PNG bytes.
+
+        Returns:
+            bytes: PNG file content.
+
+        Raises:
+            requests.HTTPError: When the OEIS request fails.
+        """
+        if use_cache and getattr(self, "_graph_png", None) is not None:
+            return self._graph_png
+
+        url = oeis_url(self.id, fmt="graph")
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()
+        png_bytes = response.content
+        self._graph_png = png_bytes
+        return png_bytes
+
+    def get_graph_image(self, *, width=None, height=None, timeout=10, use_cache=True):
+        """
+        Retrieve the OEIS graph image in a form suitable for Jupyter display.
+
+        When IPython is available, this returns an ``IPython.display.Image``.
+        Otherwise it returns the raw PNG bytes.
+
+        Args:
+            width (int | None): Display width in pixels.
+            height (int | None): Display height in pixels.
+            timeout (int | float): Timeout in seconds for the HTTP request.
+            use_cache (bool): When True, reuse previously downloaded PNG bytes.
+
+        Returns:
+            IPython.display.Image | bytes: Display object or raw PNG bytes.
+        """
+        png_bytes = self.get_graph_png(timeout=timeout, use_cache=use_cache)
+        try:
+            from IPython.display import Image
+        except ImportError:
+            return png_bytes
+        return Image(data=png_bytes, format="png", width=width, height=height)
 
     def get_data_values(self):
         """
@@ -263,7 +318,7 @@ class Sequence:
         authors = []
         for chunk in chunks:
             name = chunk.strip()
-            name = re.sub(r'^_+|_+$', '', name).strip()
+            name = re.sub(r"^_+|_+$", "", name).strip()
             if Sequence._is_date_token(name):
                 continue
             if name:
@@ -337,5 +392,6 @@ class Sequence:
             if value:
                 keywords.append(value)
         return keywords
+
 
 __all__ = ["Sequence"]

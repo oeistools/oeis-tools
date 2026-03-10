@@ -60,33 +60,35 @@ OEIS_KEYWORD_DESCRIPTIONS = {
     "uned": "Not edited; entry still needs editorial review.",
 }
 
+
 def check_id(oeis_id):
     """
     Check if the OEIS ID is valid.
     It must start with 'A' followed by exactly 6 digits.
-    
+
     Args:
         oeis_id (str): The ID to check.
-    
+
     Returns:
         bool: True if valid, False otherwise.
     """
-    pattern = r'^A\d{6}$'
+    pattern = r"^A\d{6}$"
     return bool(re.match(pattern, oeis_id))
+
 
 def oeis_bfile(oeis_id):
     """
     Generate the b-file filename for a given OEIS ID.
-    
+
     The b-file is a text file containing the sequence data.
     The filename format is 'b' followed by the 6-digit number and '.txt'.
-    
+
     Args:
         oeis_id (str): A valid OEIS ID, e.g., 'A000001'.
-    
+
     Returns:[print(item[0]) for item in json_dict()]
         str: The b-file filename, e.g., 'b000001.txt'.
-    
+
     Raises:
         ValueError: If the oeis_id is not in the correct format.
     """
@@ -97,19 +99,20 @@ def oeis_bfile(oeis_id):
     digits = oeis_id[1:]
     return f"b{digits}.txt"
 
+
 def oeis_url(oeis_id, fmt=None):
     """
     Generate the OEIS webpage URL for a given OEIS ID.
-    
+
     Args:
         oeis_id (str): The OEIS ID, e.g., 'A000001'.
-        fmt (str, optional): The format of the response. 
+        fmt (str, optional): The format of the response.
             - 'json': JSON search URL.
             - 'text': Text search URL.
             - 'bfile': b-file URL.
             - 'graph': OEIS graph image URL (PNG).
             - None: Standard webpage URL.
-    
+
     Returns:
         str: The URL.
     """

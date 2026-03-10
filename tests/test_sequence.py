@@ -30,6 +30,19 @@ class DummyResponse:
         return self._payload
 
 
+class DummyBinaryResponse:
+    """Minimal binary response object for mocking image downloads."""
+
+    def __init__(self, content, error=None):
+        self.content = content
+        self._error = error
+
+    def raise_for_status(self):
+        if self._error:
+            raise self._error
+        return None
+
+
 class DummyBFile:
     """Simple placeholder used to avoid network calls in ``Sequence``."""
 
@@ -116,6 +129,7 @@ def test_sequence_rejects_invalid_oeis_id():
 
 def test_sequence_propagates_http_error(monkeypatch):
     """Propagate HTTP errors from the JSON endpoint."""
+
     def fake_get(url, timeout):
         return DummyResponse(payload=None, error=requests.HTTPError("request failed"))
 
@@ -390,3 +404,26 @@ def test_sequence_get_keyword_description_normalizes_tag_input(monkeypatch):
         "It is easy to produce terms of this sequence."
     )
     assert seq.get_keyword_description("") is None
+
+
+def test_sequence_get_graph_png_downloads_and_caches(monkeypatch):
+    """Download graph PNG bytes and reuse cached content by default."""
+    payload = [{"id": "M0001 N0001", "link": []}]
+    png_bytes = b"\x89PNG\r\n\x1a\n" + b"dummy"
+    calls = {"json": 0, "graph": 0}
+
+    def fake_get(url, timeout):
+        if "fmt=json" in url:
+            calls["json"] += 1
+            return DummyResponse(payload)
+        calls["graph"] += 1
+        return DummyBinaryResponse(png_bytes)
+
+    monkeypatch.setattr("oeis_tools.sequence.requests.get", fake_get)
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    assert seq.get_graph_png() == png_bytes
+    assert seq.get_graph_png() == png_bytes
+    assert calls["json"] == 1
+    assert calls["graph"] == 1

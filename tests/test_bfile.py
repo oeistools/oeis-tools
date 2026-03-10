@@ -26,6 +26,7 @@ class DummyResponse:
 
 def test_bfile_parses_numeric_values_and_metadata(monkeypatch):
     """Parse b-file values and expose expected filename and URL."""
+
     def fake_get(url, timeout):
         assert "A000045" in url
         assert timeout == 10
@@ -42,6 +43,7 @@ def test_bfile_parses_numeric_values_and_metadata(monkeypatch):
 
 def test_bfile_returns_none_when_request_fails(monkeypatch):
     """Return ``None`` when the HTTP request fails."""
+
     def fake_get(url, timeout):
         raise requests.RequestException("network error")
 
@@ -53,6 +55,7 @@ def test_bfile_returns_none_when_request_fails(monkeypatch):
 
 def test_bfile_returns_none_for_malformed_line(monkeypatch):
     """Return ``None`` when a b-file line cannot be parsed."""
+
     def fake_get(url, timeout):
         return DummyResponse("0 0\nthis-is-not-valid\n")
 
@@ -64,6 +67,7 @@ def test_bfile_returns_none_for_malformed_line(monkeypatch):
 
 def test_bfile_plot_data_plots_values(monkeypatch):
     """Plot parsed b-file values onto a matplotlib-like axes object."""
+
     class FakeAxes:
         def __init__(self):
             self.plot_calls = []
@@ -117,6 +121,7 @@ def test_bfile_plot_data_plots_values(monkeypatch):
 
 def test_bfile_plot_data_uses_bfile_indices_for_x_axis(monkeypatch):
     """Use parsed b-file indices as x values when available."""
+
     class FakeAxes:
         def __init__(self):
             self.plot_calls = []
@@ -232,6 +237,7 @@ def test_bfile_plot_data_rejects_invalid_n(monkeypatch):
 
 def test_bfile_plot_data_raises_when_data_missing(monkeypatch):
     """Reject plotting when b-file data is unavailable."""
+
     def fake_get(url, timeout):
         raise requests.RequestException("network error")
 
@@ -244,6 +250,7 @@ def test_bfile_plot_data_raises_when_data_missing(monkeypatch):
 
 def test_bfile_plot_data_uses_log10_for_very_large_values(monkeypatch):
     """Fallback to signed log10 plotting when values exceed float range."""
+
     class FakeAxes:
         def __init__(self):
             self.plot_calls = []
