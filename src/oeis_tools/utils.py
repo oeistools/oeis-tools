@@ -18,6 +18,7 @@ requests and have no side effects beyond basic validation.
 import re
 
 OEIS_URL = "https://oeis.org"
+OEIS_ID_PATTERN = re.compile(r"^A\d{6}$")
 
 
 # A mapping of OEIS keyword tags to their descriptions, based on the OEIS wiki.
@@ -72,8 +73,10 @@ def check_id(oeis_id):
     Returns:
         bool: True if valid, False otherwise.
     """
-    pattern = r"^A\d{6}$"
-    return bool(re.match(pattern, oeis_id))
+    if not isinstance(oeis_id, str):
+        return False
+
+    return bool(OEIS_ID_PATTERN.fullmatch(oeis_id))
 
 
 def oeis_bfile(oeis_id):
@@ -86,7 +89,7 @@ def oeis_bfile(oeis_id):
     Args:
         oeis_id (str): A valid OEIS ID, e.g., 'A000001'.
 
-    Returns:[print(item[0]) for item in json_dict()]
+    Returns:
         str: The b-file filename, e.g., 'b000001.txt'.
 
     Raises:
@@ -116,6 +119,8 @@ def oeis_url(oeis_id, fmt=None):
     Returns:
         str: The URL.
     """
+    normalized_fmt = fmt.strip().lower() if isinstance(fmt, str) else fmt
+
     formats = {
         "json": f"{OEIS_URL}/search?q=id:{oeis_id}&fmt=json",
         "text": f"{OEIS_URL}/search?q=id:{oeis_id}&fmt=text",
@@ -123,7 +128,7 @@ def oeis_url(oeis_id, fmt=None):
         "graph": f"{OEIS_URL}/{oeis_id}/graph?png=1",
         None: f"{OEIS_URL}/{oeis_id}",
     }
-    return formats.get(fmt, formats[None])
+    return formats.get(normalized_fmt, formats[None])
 
 
 def oeis_keyword_description(keyword_tag):
