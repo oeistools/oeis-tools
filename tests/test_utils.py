@@ -27,6 +27,12 @@ def test_check_id_rejects_invalid_oeis_ids():
     assert check_id("A12ABC") is False
 
 
+def test_check_id_rejects_non_string_values():
+    """Reject non-string inputs instead of raising type errors."""
+    assert check_id(None) is False
+    assert check_id(12345) is False
+
+
 def test_oeis_bfile_builds_expected_filename():
     """Build the expected OEIS b-file filename from a valid ID."""
     assert oeis_bfile("A000045") == "b000045.txt"
@@ -45,6 +51,13 @@ def test_oeis_url_builds_supported_formats():
     assert oeis_url("A000001", fmt="text") == f"{OEIS_URL}/search?q=id:A000001&fmt=text"
     assert oeis_url("A000001", fmt="bfile") == f"{OEIS_URL}/A000001/b000001.txt"
     assert oeis_url("A000001", fmt="graph") == f"{OEIS_URL}/A000001/graph?png=1"
+
+
+def test_oeis_url_normalizes_format_strings():
+    """Normalize format values by trimming whitespace and lowercasing."""
+    assert (
+        oeis_url("A000001", fmt=" JSON ") == f"{OEIS_URL}/search?q=id:A000001&fmt=json"
+    )
 
 
 def test_oeis_url_falls_back_to_default_for_unknown_format():
