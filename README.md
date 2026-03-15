@@ -7,14 +7,20 @@
 [![Package format](https://img.shields.io/pypi/format/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A Python toolkit for programmatic access, analysis, and visualization of integer sequences from the [Online Encyclopedia of Integer Sequences (OEIS)](https://oeis.org/).
+A focused Python toolkit for working with OEIS integer sequences: fetch metadata, parse b-files, and plot sequence values quickly.
 
 ## Features
 
 - Validate OEIS IDs like `A000045`
 - Build canonical OEIS URLs and b-file names
-- Fetch and parse sequence JSON data via `Sequence`
-- Fetch and parse b-file numeric values via `BFile`
+- Fetch sequence JSON metadata via `Sequence`
+- Fetch and parse b-file numeric data via `BFile`
+- Plot b-file values with line or scatter styles
+
+## Requirements
+
+- Python 3.9+
+- Optional: `matplotlib` for plotting
 
 ## Installation
 
@@ -72,8 +78,41 @@ bfile = BFile("A000045")
 print(bfile.get_filename())   # b000045.txt
 print(bfile.get_url())        # https://oeis.org/A000045/b000045.txt
 print(bfile.get_bfile_data()) # list[int] or None
-bfile.plot_data(50, show=False)                  # first 50 points
-ax = bfile.plot_data(show=False, return_ax=True) # matplotlib Axes
+bfile.plot_data(50, show=False)                                # first 50 points
+bfile.plot_data(50, show=False, plot_style="scatter")          # scatter plot
+bfile.plot_data(50, show=False, plot_style="joined")           # joined/line plot
+ax = bfile.plot_data(show=False, return_ax=True)               # matplotlib Axes
+```
+
+## Plotting Examples
+
+Overlay two sequences on one plot:
+
+```python
+import matplotlib.pyplot as plt
+import oeis_tools
+
+N_POINTS = 200
+
+bfile = oeis_tools.BFile("A114906")
+bfile2 = oeis_tools.BFile("A114904")
+fig, ax = plt.subplots()
+bfile.plot_data(n=N_POINTS, ax=ax, show=False, color="red")
+bfile2.plot_data(n=N_POINTS, ax=ax, show=True, color="blue")
+plt.show()
+```
+
+Scatter versus joined:
+
+```python
+import matplotlib.pyplot as plt
+from oeis_tools import BFile
+
+bfile = BFile("A000045")
+fig, ax = plt.subplots()
+bfile.plot_data(80, ax=ax, show=False, plot_style="scatter", color="black")
+bfile.plot_data(80, ax=ax, show=False, plot_style="joined", color="orange")
+plt.show()
 ```
 
 ## API Summary
@@ -87,7 +126,7 @@ ax = bfile.plot_data(show=False, return_ax=True) # matplotlib Axes
 - `BFile.get_filename() -> str`
 - `BFile.get_url() -> str`
 - `BFile.get_bfile_data() -> list[int] | None`
-- `BFile.plot_data(n: int | None = None, show: bool = True, ax=None, return_ax: bool = False, **plot_kwargs)`
+- `BFile.plot_data(n: int | None = None, show: bool = True, ax=None, return_ax: bool = False, plot_style: str = "line", **plot_kwargs)`
 
 ## Error Behavior
 

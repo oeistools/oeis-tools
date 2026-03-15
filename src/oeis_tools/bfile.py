@@ -118,7 +118,15 @@ class BFile:
         """
         return self.indices
 
-    def plot_data(self, n=None, show=True, ax=None, return_ax=False, **plot_kwargs):
+    def plot_data(
+        self,
+        n=None,
+        show=True,
+        ax=None,
+        return_ax=False,
+        plot_style="line",
+        **plot_kwargs,
+    ):
         """
         Plot parsed b-file values against their index.
 
@@ -129,7 +137,10 @@ class BFile:
             ax: Optional matplotlib Axes object to plot into.
             return_ax (bool): Return the matplotlib Axes when True. Defaults to
                 False to avoid notebook output noise.
-            **plot_kwargs: Keyword arguments forwarded to ``ax.plot``.
+            plot_style (str): Plot style for the data. Supported values:
+                ``"line"`` (default), ``"joined"``, or ``"scatter"``.
+            **plot_kwargs: Keyword arguments forwarded to ``ax.plot`` or
+                ``ax.scatter`` depending on ``plot_style``.
 
         Returns:
             matplotlib.axes.Axes | None: The axes when ``return_ax=True``;
@@ -148,6 +159,18 @@ class BFile:
                 raise TypeError("n must be an integer or None.")
             if n < 0:
                 raise ValueError("n must be non-negative.")
+
+        if not isinstance(plot_style, str):
+            raise TypeError("plot_style must be a string.")
+
+        plot_style_normalized = plot_style.strip().lower()
+        if plot_style_normalized == "joined":
+            plot_style_normalized = "line"
+
+        if plot_style_normalized not in {"line", "scatter"}:
+            raise ValueError(
+                "plot_style must be one of: 'line', 'joined', or 'scatter'."
+            )
 
         try:
             import matplotlib.pyplot as plt  # pylint: disable=import-outside-toplevel
@@ -196,15 +219,36 @@ class BFile:
                 )
                 for value in plot_values
             ]
-            ax.plot(x_values, y_values, **plot_kwargs)
-            ax.set_title(f"{self.oeis_id} b-file data (log10 magnitude)")
+            if plot_style_normalized == "scatter":
+                ax.scatter(x_values, y_values, **plot_kwargs)
+            else:
+                ax.plot(x_values, y_values, **plot_kwargs)
+            title_suffix = " b-file data (log10 magnitude)"
             ax.set_ylabel("sign(value) * log10(|value|)")
         else:
-            ax.plot(x_values, plot_values, **plot_kwargs)
-            ax.set_title(f"{self.oeis_id} b-file data")
-            ax.set_ylabel("Value")
+            if plot_style_normalized == "scatter":
+                ax.scatter(x_values, plot_values, **plot_kwargs)
+            else:
+                ax.plot(x_values, plot_values, **plot_kwargs)
+            title_suffix = " b-file data"
+            ax.set_ylabel(f"{self.oeis_id}(n)")
 
         ax.set_xlabel("n" if use_bfile_indices else "Index")
+        current_title = ""
+        if hasattr(ax, "get_title"):
+            try:
+                current_title = ax.get_title() or ""
+            except TypeError:
+                current_title = ""
+        if current_title and self.oeis_id not in current_title and current_title.endswith(
+            title_suffix
+        ):
+            combined = current_title.replace(
+                title_suffix, f" + {self.oeis_id}{title_suffix}"
+            )
+            ax.set_title(combined)
+        else:
+            ax.set_title(f"{self.oeis_id}{title_suffix}")
 
         if show:
             plt.show()

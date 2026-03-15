@@ -115,7 +115,7 @@ def test_bfile_plot_data_plots_values(monkeypatch):
     assert fake_pyplot.axes.plot_calls == [([0, 1, 2], [2, 3, 5], {"color": "black"})]
     assert fake_pyplot.axes.title == "A000045 b-file data"
     assert fake_pyplot.axes.xlabel == "n"
-    assert fake_pyplot.axes.ylabel == "Value"
+    assert fake_pyplot.axes.ylabel == "A000045(n)"
     assert fake_pyplot.show_called is False
 
 
@@ -167,6 +167,56 @@ def test_bfile_plot_data_uses_bfile_indices_for_x_axis(monkeypatch):
     assert result is None
     assert fake_pyplot.axes.plot_calls == [([10, 20, 40], [2, 3, 5], {})]
     assert fake_pyplot.axes.xlabel == "n"
+
+
+def test_bfile_plot_data_scatter_uses_scatter(monkeypatch):
+    """Plot parsed b-file values using a scatter plot when requested."""
+
+    class FakeAxes:
+        def __init__(self):
+            self.plot_calls = []
+            self.scatter_calls = []
+
+        def plot(self, x, y, **kwargs):
+            self.plot_calls.append((list(x), list(y), kwargs))
+
+        def scatter(self, x, y, **kwargs):
+            self.scatter_calls.append((list(x), list(y), kwargs))
+
+        def set_title(self, value):
+            return None
+
+        def set_xlabel(self, value):
+            return None
+
+        def set_ylabel(self, value):
+            return None
+
+    class FakePyplot:
+        def __init__(self):
+            self.axes = FakeAxes()
+
+        def subplots(self):
+            return object(), self.axes
+
+        def show(self):
+            return None
+
+    fake_pyplot = FakePyplot()
+    fake_matplotlib = SimpleNamespace(pyplot=fake_pyplot)
+
+    def fake_get(url, timeout):
+        return DummyResponse("0 2\n1 3\n2 5\n")
+
+    monkeypatch.setattr("oeis_tools.bfile.requests.get", fake_get)
+    monkeypatch.setitem(sys.modules, "matplotlib", fake_matplotlib)
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", fake_pyplot)
+
+    bfile = BFile("A000045")
+    bfile.plot_data(show=False, plot_style="scatter", color="black")
+
+    assert fake_pyplot.axes.plot_calls == []
+    assert fake_pyplot.axes.scatter_calls == [([0, 1, 2], [2, 3, 5], {"color": "black"})]
 
 
 def test_bfile_plot_data_accepts_n_for_prefix_plot(monkeypatch):
