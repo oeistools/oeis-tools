@@ -240,8 +240,10 @@ class BFile:
                 current_title = ax.get_title() or ""
             except TypeError:
                 current_title = ""
-        if current_title and self.oeis_id not in current_title and current_title.endswith(
-            title_suffix
+        if (
+            current_title
+            and self.oeis_id not in current_title
+            and current_title.endswith(title_suffix)
         ):
             combined = current_title.replace(
                 title_suffix, f" + {self.oeis_id}{title_suffix}"

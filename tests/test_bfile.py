@@ -216,7 +216,9 @@ def test_bfile_plot_data_scatter_uses_scatter(monkeypatch):
     bfile.plot_data(show=False, plot_style="scatter", color="black")
 
     assert fake_pyplot.axes.plot_calls == []
-    assert fake_pyplot.axes.scatter_calls == [([0, 1, 2], [2, 3, 5], {"color": "black"})]
+    assert fake_pyplot.axes.scatter_calls == [
+        ([0, 1, 2], [2, 3, 5], {"color": "black"})
+    ]
 
 
 def test_bfile_plot_data_accepts_n_for_prefix_plot(monkeypatch):
