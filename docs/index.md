@@ -23,4 +23,4 @@ seq = ot.Sequence("A000045")
 print(seq.name)  # Fibonacci numbers
 ```
 
-Check out the [API Reference](api.md) to see all the available classes and functions.
+Check out the [Usage Guide](usage.md) for plotting examples and the [API Reference](reference/sequence.md) to see all the available classes and functions.
