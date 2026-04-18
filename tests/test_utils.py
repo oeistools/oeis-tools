@@ -79,3 +79,8 @@ def test_oeis_keyword_description_normalizes_and_handles_unknown():
     )
     assert oeis_keyword_description("not-a-tag") is None
     assert oeis_keyword_description("") is None
+
+
+def test_oeis_keyword_description_returns_none_for_none_input():
+    """Return None when keyword_tag is None."""
+    assert oeis_keyword_description(None) is None
