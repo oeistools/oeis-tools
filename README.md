@@ -1,7 +1,7 @@
 # oeis-tools
 
 [![CI](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/oeistools/oeis-tools/actions/workflows/tests.yml?query=branch%3Amain)
-[![codecov](https://codecov.io/gh/oeistools/oeis-tools/graph/badge.svg)](https://codecov.io/gh/oeistools/oeis-tools)
+[![codecov](https://codecov.io/gh/oeistools/oeis-tools/graph/badge.svg?token=VS85S5ZKYO)](https://codecov.io/gh/oeistools/oeis-tools)
 [![PyPI version](https://img.shields.io/pypi/v/oeis-tools.svg?cacheSeconds=60)](https://pypi.org/project/oeis-tools/)
 [![Python versions](https://img.shields.io/pypi/pyversions/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
 [![Wheel](https://img.shields.io/pypi/wheel/oeis-tools.svg)](https://pypi.org/project/oeis-tools/)
