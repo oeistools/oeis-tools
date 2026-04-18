@@ -21,10 +21,46 @@ Typical usage:
 
 import math
 import sys
+from pathlib import Path
 
 import requests
 
 from .utils import oeis_bfile, oeis_url
+
+
+def create_bfile(oeis_id, data, offset=1, output_path=None):
+    """
+    Create a b-file text file for a given OEIS sequence from a list of values.
+
+    A b-file contains values of an integer sequence in the form:
+    n a(n), one pair per line.
+
+    Args:
+        oeis_id (str): The OEIS identifier (e.g., 'A213676').
+        data (list[int]): Sequence values to write to the b-file.
+        offset (int): The starting index (n) for the sequence. Defaults to 1.
+        output_path (str, optional): The directory or exact file path to save
+            the b-file. If None, it saves to the current working directory
+            using the standard b-file name (e.g., 'b213676.txt').
+
+    Returns:
+        str: The path to the created b-file.
+    """
+    filename = oeis_bfile(oeis_id)
+    if output_path is None:
+        file_path = Path(filename)
+    else:
+        path = Path(output_path)
+        if path.is_dir():
+            file_path = path / filename
+        else:
+            file_path = path
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        for i, value in enumerate(data):
+            f.write(f"{offset + i} {value}\n")
+
+    return str(file_path)
 
 
 class BFile:
