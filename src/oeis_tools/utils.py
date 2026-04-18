@@ -62,7 +62,7 @@ OEIS_KEYWORD_DESCRIPTIONS = {
 }
 
 
-def check_id(oeis_id):
+def check_id(oeis_id: str) -> bool:
     """
     Check if the OEIS ID is valid.
     It must start with 'A' followed by exactly 6 digits.
@@ -79,7 +79,7 @@ def check_id(oeis_id):
     return bool(OEIS_ID_PATTERN.fullmatch(oeis_id))
 
 
-def oeis_bfile(oeis_id):
+def oeis_bfile(oeis_id: str) -> str:
     """
     Generate the b-file filename for a given OEIS ID.
 
@@ -103,7 +103,7 @@ def oeis_bfile(oeis_id):
     return f"b{digits}.txt"
 
 
-def oeis_url(oeis_id, fmt=None):
+def oeis_url(oeis_id: str, fmt: str | None = None) -> str:
     """
     Generate the OEIS webpage URL for a given OEIS ID.
 
@@ -131,7 +131,7 @@ def oeis_url(oeis_id, fmt=None):
     return formats.get(normalized_fmt, formats[None])
 
 
-def oeis_keyword_description(keyword_tag):
+def oeis_keyword_description(keyword_tag: str | None) -> str | None:
     """
     Return the OEIS wiki description for a keyword tag.
 

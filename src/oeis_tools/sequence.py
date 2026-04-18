@@ -5,6 +5,7 @@
 
 import re
 from datetime import datetime
+from typing import Any
 
 import requests
 
@@ -44,7 +45,7 @@ class Sequence:
         revision (str): Revision information from the 'revision' field.
     """
 
-    def __init__(self, oeis_id):
+    def __init__(self, oeis_id: str) -> None:
         """
         Initialize the Sequence with the given OEIS ID.
 
@@ -143,7 +144,7 @@ class Sequence:
         # Fetch BFile if content if b-file link is present
         self.bfile = BFile(self.id)
 
-    def get_bfile_info(self):
+    def get_bfile_info(self) -> dict:
         """
         Return summary information about the attached b-file data.
 
@@ -174,7 +175,7 @@ class Sequence:
             "max": max(data) if data else None,
         }
 
-    def get_xref_ids(self):
+    def get_xref_ids(self) -> list[str]:
         """
         Extract OEIS IDs from the parsed cross-reference text.
 
@@ -185,7 +186,9 @@ class Sequence:
         ids = re.findall(r"A\d{6}", xref_text)
         return list(dict.fromkeys(ids))
 
-    def get_graph_png(self, *, timeout=10, use_cache=True):
+    def get_graph_png(
+        self, *, timeout: int | float = 10, use_cache: bool = True
+    ) -> bytes:
         """
         Download the OEIS graph image as PNG bytes.
 
@@ -209,7 +212,14 @@ class Sequence:
         self._graph_png = png_bytes
         return png_bytes
 
-    def get_graph_image(self, *, width=None, height=None, timeout=10, use_cache=True):
+    def get_graph_image(
+        self,
+        *,
+        width: int | None = None,
+        height: int | None = None,
+        timeout: int | float = 10,
+        use_cache: bool = True,
+    ) -> Any | bytes:
         """
         Retrieve the OEIS graph image in a form suitable for Jupyter display.
 
@@ -232,7 +242,7 @@ class Sequence:
             return png_bytes
         return Image(data=png_bytes, format="png", width=width, height=height)
 
-    def get_data_values(self):
+    def get_data_values(self) -> list[int]:
         """
         Return the parsed sequence data terms.
 
@@ -256,7 +266,7 @@ class Sequence:
         return values
 
     @staticmethod
-    def _parse_data_values(data_raw):
+    def _parse_data_values(data_raw) -> list[int]:
         """
         Parse a raw OEIS data field into integer values.
 
@@ -281,7 +291,7 @@ class Sequence:
                 continue
         return values
 
-    def get_keyword_description(self, keyword_tag):
+    def get_keyword_description(self, keyword_tag: str) -> str | None:
         """
         Return the OEIS keyword description for a given tag.
 
@@ -294,7 +304,7 @@ class Sequence:
         return oeis_keyword_description(keyword_tag)
 
     @staticmethod
-    def _parse_authors(author_raw):
+    def _parse_authors(author_raw) -> list[str]:
         """
         Parse OEIS author field into a clean list of author names.
 
@@ -326,7 +336,7 @@ class Sequence:
         return authors
 
     @staticmethod
-    def _is_date_token(value):
+    def _is_date_token(value: str) -> bool:
         """
         Return True when a token is a date-like value, not an author name.
 
@@ -347,7 +357,7 @@ class Sequence:
         return any(re.fullmatch(pattern, value) for pattern in date_patterns)
 
     @staticmethod
-    def _parse_offset(offset_raw):
+    def _parse_offset(offset_raw) -> list[int]:
         """
         Parse OEIS offset field into a list of integers.
 
@@ -372,7 +382,7 @@ class Sequence:
         return offsets
 
     @staticmethod
-    def _parse_keywords(keyword_raw):
+    def _parse_keywords(keyword_raw) -> list[str]:
         """
         Parse OEIS keyword field into a list of strings.
 

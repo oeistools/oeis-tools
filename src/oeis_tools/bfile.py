@@ -22,13 +22,16 @@ Typical usage:
 import math
 import sys
 from pathlib import Path
+from typing import Any
 
 import requests
 
 from .utils import oeis_bfile, oeis_url
 
 
-def create_bfile(oeis_id, data, offset=1, output_path=None):
+def create_bfile(
+    oeis_id: str, data: list[int], offset: int = 1, output_path: str | None = None
+) -> str:
     """
     Create a b-file text file for a given OEIS sequence from a list of values.
 
@@ -79,14 +82,14 @@ class BFile:
             b-file, or None if the b-file could not be retrieved or parsed.
     """
 
-    def __init__(self, oeis_id):
+    def __init__(self, oeis_id: str) -> None:
         self.oeis_id = oeis_id
         self.filename = oeis_bfile(oeis_id)
         self.url = oeis_url(oeis_id, fmt="bfile")
         self.indices = None
         self.data = self.fetch_bfile_data()
 
-    def fetch_bfile_data(self):
+    def fetch_bfile_data(self) -> list[int] | None:
         """
         Fetch and parse the b-file into a list of integers.
 
@@ -117,7 +120,7 @@ class BFile:
         self.indices = indices
         return data
 
-    def get_filename(self):
+    def get_filename(self) -> str:
         """
         Return the local filename of the OEIS b-file.
 
@@ -126,7 +129,7 @@ class BFile:
         """
         return self.filename
 
-    def get_url(self):
+    def get_url(self) -> str:
         """
         Return the URL of the OEIS b-file.
 
@@ -135,7 +138,7 @@ class BFile:
         """
         return self.url
 
-    def get_bfile_data(self):
+    def get_bfile_data(self) -> list[int] | None:
         """
         Return the numeric data parsed from the OEIS b-file.
 
@@ -145,7 +148,7 @@ class BFile:
         """
         return self.data
 
-    def get_bfile_indices(self):
+    def get_bfile_indices(self) -> list[int] | None:
         """
         Return index values parsed from the OEIS b-file first column.
 
@@ -156,13 +159,13 @@ class BFile:
 
     def plot_data(
         self,
-        n=None,
-        show=True,
-        ax=None,
-        return_ax=False,
-        plot_style="line",
-        **plot_kwargs,
-    ):
+        n: int | None = None,
+        show: bool = True,
+        ax: Any = None,
+        return_ax: bool = False,
+        plot_style: str = "line",
+        **plot_kwargs: Any,
+    ) -> Any | None:
         """
         Plot parsed b-file values against their index.
 
