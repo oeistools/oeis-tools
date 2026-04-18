@@ -41,6 +41,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest>=7.4",
+  "pytest-cov>=4.1",
   "ruff>=0.6",
   "build>=1.2",
   "twine>=5.1",
@@ -83,7 +84,7 @@ indent-style = "space"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra -q"
+addopts = "-ra -q --cov=oeis_tools --cov-report=xml --cov-report=term"
 testpaths = [
   "tests",
 ]
