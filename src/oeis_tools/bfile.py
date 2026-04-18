@@ -19,6 +19,8 @@ Typical usage:
     >>> bfile.get_bfile_data()
 """
 
+from __future__ import annotations
+
 import math
 import sys
 from pathlib import Path

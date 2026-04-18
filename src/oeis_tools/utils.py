@@ -15,6 +15,8 @@ The functions in this module are pure utilities: they perform no network
 requests and have no side effects beyond basic validation.
 """
 
+from __future__ import annotations
+
 import re
 
 OEIS_URL = "https://oeis.org"

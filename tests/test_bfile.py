@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import pytest
 import requests
 
-from oeis_tools.bfile import BFile
+from oeis_tools.bfile import BFile, create_bfile
 
 
 class DummyResponse:
@@ -401,3 +401,226 @@ def test_bfile_plot_data_can_return_axes_when_requested(monkeypatch):
     ax = bfile.plot_data(show=False, return_ax=True)
 
     assert ax is fake_pyplot.axes
+
+
+def test_create_bfile_default_path(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    data = [10, 20]
+    result = create_bfile("A123456", data)
+    assert result == "b123456.txt"
+    with open(result, encoding="utf-8") as f:
+        assert f.read() == "1 10\n2 20\n"
+
+
+def test_create_bfile_dir_path(tmp_path):
+    data = [5, 6]
+    result = create_bfile("A123456", data, offset=0, output_path=str(tmp_path))
+    expected = tmp_path / "b123456.txt"
+    assert result == str(expected)
+    with open(result, encoding="utf-8") as f:
+        assert f.read() == "0 5\n1 6\n"
+
+
+def test_create_bfile_exact_path(tmp_path):
+    exact_file = tmp_path / "my_custom.txt"
+    data = [100]
+    result = create_bfile("A123456", data, output_path=str(exact_file))
+    assert result == str(exact_file)
+    with open(result, encoding="utf-8") as f:
+        assert f.read() == "1 100\n"
+
+
+def test_bfile_plot_data_style_joined(monkeypatch):
+    class FakeAxes:
+        def __init__(self):
+            self.plot_calls = []
+
+        def plot(self, x, y, **kwargs):
+            self.plot_calls.append((list(x), list(y), kwargs))
+
+        def set_title(self, value):
+            pass
+
+        def set_xlabel(self, value):
+            pass
+
+        def set_ylabel(self, value):
+            pass
+
+    class FakePyplot:
+        def __init__(self):
+            self.axes = FakeAxes()
+
+        def subplots(self):
+            return object(), self.axes
+
+        def show(self):
+            pass
+
+    fake_pyplot = FakePyplot()
+    monkeypatch.setattr(
+        "oeis_tools.bfile.requests.get", lambda url, timeout: DummyResponse("0 2\n")
+    )
+    monkeypatch.setitem(sys.modules, "matplotlib", SimpleNamespace(pyplot=fake_pyplot))
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", fake_pyplot)
+
+    bfile = BFile("A000045")
+    bfile.plot_data(show=False, plot_style="joined")
+    assert len(fake_pyplot.axes.plot_calls) == 1
+
+
+def test_bfile_plot_data_invalid_style(monkeypatch):
+    monkeypatch.setattr(
+        "oeis_tools.bfile.requests.get", lambda url, timeout: DummyResponse("0 2\n")
+    )
+    bfile = BFile("A000045")
+    with pytest.raises(ValueError, match="plot_style must be one of"):
+        bfile.plot_data(show=False, plot_style="invalid")
+
+
+def test_bfile_plot_data_matplotlib_missing(monkeypatch):
+    monkeypatch.setattr(
+        "oeis_tools.bfile.requests.get", lambda url, timeout: DummyResponse("0 2\n")
+    )
+    bfile = BFile("A000045")
+
+    import builtins
+
+    real_import = builtins.__import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "matplotlib.pyplot":
+            raise ImportError("No module named matplotlib.pyplot")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+
+    with pytest.raises(ImportError, match="matplotlib is required for plotting"):
+        bfile.plot_data(show=False)
+
+
+def test_bfile_plot_data_huge_log10_line(monkeypatch):
+    class FakeAxes:
+        def __init__(self):
+            self.plot_calls = []
+
+        def plot(self, x, y, **kwargs):
+            self.plot_calls.append((list(x), list(y), kwargs))
+
+        def set_title(self, value):
+            pass
+
+        def set_xlabel(self, value):
+            pass
+
+        def set_ylabel(self, value):
+            pass
+
+    class FakePyplot:
+        def __init__(self):
+            self.axes = FakeAxes()
+
+        def subplots(self):
+            return object(), self.axes
+
+        def show(self):
+            pass
+
+    fake_pyplot = FakePyplot()
+
+    huge = 10**400
+    monkeypatch.setattr(
+        "oeis_tools.bfile.requests.get",
+        lambda url, timeout: DummyResponse(f"0 0\n1 {huge}\n"),
+    )
+    monkeypatch.setitem(sys.modules, "matplotlib", SimpleNamespace(pyplot=fake_pyplot))
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", fake_pyplot)
+
+    bfile = BFile("A000045")
+    bfile.plot_data(show=False, plot_style="line")
+    assert len(fake_pyplot.axes.plot_calls) == 1
+    assert fake_pyplot.axes.plot_calls[0][1][1] == pytest.approx(400.0, rel=1e-6)
+
+
+def test_bfile_plot_data_existing_title_combined(monkeypatch):
+    class FakeAxes:
+        def __init__(self):
+            self.title = "Existing b-file data"
+
+        def plot(self, x, y, **kwargs):
+            pass
+
+        def get_title(self):
+            return self.title
+
+        def set_title(self, value):
+            self.title = value
+
+        def set_xlabel(self, value):
+            pass
+
+        def set_ylabel(self, value):
+            pass
+
+    class FakePyplot:
+        def __init__(self):
+            self.axes = FakeAxes()
+
+        def subplots(self):
+            return object(), self.axes
+
+        def show(self):
+            pass
+
+    fake_pyplot = FakePyplot()
+    monkeypatch.setattr(
+        "oeis_tools.bfile.requests.get", lambda url, timeout: DummyResponse("0 2\n")
+    )
+    monkeypatch.setitem(sys.modules, "matplotlib", SimpleNamespace(pyplot=fake_pyplot))
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", fake_pyplot)
+
+    bfile = BFile("A000045")
+    bfile.plot_data(show=False, ax=fake_pyplot.axes)
+    assert fake_pyplot.axes.title == "Existing + A000045 b-file data"
+
+
+def test_bfile_plot_data_get_title_typeerror(monkeypatch):
+    class FakeAxes:
+        def __init__(self):
+            self.title = "Some Title"
+
+        def plot(self, x, y, **kwargs):
+            pass
+
+        def get_title(self):
+            raise TypeError("mocked typeerror")
+
+        def set_title(self, value):
+            self.title = value
+
+        def set_xlabel(self, value):
+            pass
+
+        def set_ylabel(self, value):
+            pass
+
+    class FakePyplot:
+        def __init__(self):
+            self.axes = FakeAxes()
+
+        def subplots(self):
+            return object(), self.axes
+
+        def show(self):
+            pass
+
+    fake_pyplot = FakePyplot()
+    monkeypatch.setattr(
+        "oeis_tools.bfile.requests.get", lambda url, timeout: DummyResponse("0 2\n")
+    )
+    monkeypatch.setitem(sys.modules, "matplotlib", SimpleNamespace(pyplot=fake_pyplot))
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", fake_pyplot)
+
+    bfile = BFile("A000045")
+    bfile.plot_data(show=False, ax=fake_pyplot.axes)
+    assert fake_pyplot.axes.title == "A000045 b-file data"

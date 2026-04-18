@@ -3,6 +3,8 @@
 
 """Tools and utilities for working with OEIS integer sequences."""
 
+from __future__ import annotations
+
 import re
 from datetime import datetime
 from typing import Any
