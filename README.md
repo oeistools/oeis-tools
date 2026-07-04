@@ -196,6 +196,8 @@ bfile.plot_data(80, ax=ax, show=False, plot_style="joined", color="orange")
 plt.show()
 ```
 
+![Scatter and joined plot of the first 80 Fibonacci numbers (A000045)](docs/images/scatter_vs_joined.png)
+
 ## API Summary
 
 **Module-level utilities** (`oeis_tools`)
