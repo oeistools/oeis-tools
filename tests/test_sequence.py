@@ -635,6 +635,66 @@ def test_sequence_get_graph_image_returns_ipython_image_when_available(monkeypat
     assert result is not None
 
 
+# ---- Tests for get_bibtex ----
+
+
+def test_sequence_get_bibtex_includes_authors_date_url_and_title(monkeypatch):
+    """Build a BibTeX entry with authors, creation date, title, and URL."""
+    payload = [
+        {
+            "id": "M1234 N5678",
+            "name": "Fibonacci numbers",
+            "author": "_Tom Verhoeff_, _N. J. A. Sloane_",
+            "created": "2000-01-01 00:00:00",
+            "link": [],
+        }
+    ]
+
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000045")
+    bibtex = seq.get_bibtex()
+
+    assert bibtex.startswith("@misc{A000045,")
+    assert "author       = {Tom Verhoeff and N. J. A. Sloane}" in bibtex
+    assert "title        = {A000045: Fibonacci numbers}" in bibtex
+    assert (
+        "howpublished = {The {O}n-{L}ine {E}ncyclopedia of "
+        "{I}nteger {S}equences}" in bibtex
+    )
+    assert "year         = {2000}" in bibtex
+    assert "month        = jan" in bibtex
+    assert "day          = {01}" in bibtex
+    assert "date         = {2000-01-01}" in bibtex
+    assert "url          = {https://oeis.org/A000045}" in bibtex
+
+
+def test_sequence_get_bibtex_falls_back_without_authors_or_created_date(monkeypatch):
+    """Use a default author and empty date fields when data is missing."""
+    payload = [{"id": "M0001 N0001", "link": []}]
+
+    monkeypatch.setattr(
+        "oeis_tools.sequence.requests.get",
+        lambda url, timeout: DummyResponse(payload),
+    )
+    monkeypatch.setattr("oeis_tools.sequence.BFile", DummyBFile)
+
+    seq = Sequence("A000001")
+    bibtex = seq.get_bibtex()
+
+    assert "author       = {OEIS Foundation Inc.}" in bibtex
+    assert "title        = {A000001}" in bibtex
+    assert "year         = {}" in bibtex
+    assert "month" not in bibtex
+    assert "day          =" not in bibtex
+    assert "date         = {}" in bibtex
+    assert "url          = {https://oeis.org/A000001}" in bibtex
+
+
 # ---- Test for get_data_values with string data (line 258) ----
 
 

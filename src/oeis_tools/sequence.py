@@ -305,6 +305,41 @@ class Sequence:
         """
         return oeis_keyword_description(keyword_tag)
 
+    def get_bibtex(self) -> str:
+        """
+        Build a BibTeX ``@misc`` entry citing this OEIS sequence.
+
+        Returns:
+            str: A BibTeX ``@misc`` entry including the sequence authors,
+                creation date (with month and day when available), a title
+                of the form ``"A000045: Fibonacci numbers"``, and the OEIS
+                URL.
+        """
+        authors = " and ".join(self.author) if self.author else "OEIS Foundation Inc."
+        year = str(self.created.year) if self.created else ""
+        date = self.created.strftime("%Y-%m-%d") if self.created else ""
+        url = oeis_url(self.id)
+        title = f"{self.id}: {self.name}" if self.name else self.id
+
+        fields = [
+            ("author", f"{{{authors}}}"),
+            ("title", f"{{{title}}}"),
+            (
+                "howpublished",
+                "{The {O}n-{L}ine {E}ncyclopedia of {I}nteger {S}equences}",
+            ),
+            ("year", f"{{{year}}}"),
+        ]
+        if self.created:
+            fields.append(("month", self.created.strftime("%b").lower()))
+            fields.append(("day", f"{{{self.created.day:02d}}}"))
+        fields.append(("date", f"{{{date}}}"))
+        fields.append(("url", f"{{{url}}}"))
+
+        width = max(len(name) for name, _ in fields)
+        body = ",\n".join(f"  {name.ljust(width)} = {value}" for name, value in fields)
+        return f"@misc{{{self.id},\n{body}\n}}"
+
     @staticmethod
     def _parse_authors(author_raw) -> list[str]:
         """
