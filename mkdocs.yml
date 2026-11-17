@@ -4,8 +4,10 @@ site_url: https://oeistools.github.io/oeis-tools/
 
 theme:
   name: material
-  logo: material/math-integral-box
-  favicon: material/math-integral-box
+  # a Material icon goes in icon.logo; favicon must be a file
+  icon:
+    logo: material/math-integral-box
+  favicon: assets/favicon.svg
   features:
     - navigation.tabs
     - navigation.sections
@@ -32,9 +34,8 @@ theme:
       toggle:
         icon: material/weather-night
         name: Switch to light mode
-  font:
-    text: Inter
-    code: Fira Code
+  # no Google Fonts: the system fonts
+  font: false
 
 repo_name: oeistools/oeis-tools
 repo_url: https://github.com/oeistools/oeis-tools
@@ -78,5 +79,4 @@ markdown_extensions:
 
 extra_javascript:
   - javascripts/mathjax.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
